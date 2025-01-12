@@ -1,0 +1,6 @@
+@TravelMemories_HostAddress = http://localhost:5298
+
+GET {{TravelMemories_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
