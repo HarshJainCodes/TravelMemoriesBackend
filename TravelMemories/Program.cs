@@ -17,7 +17,7 @@ builder.Services.AddDbContext<ImageMetadataDBContext>(options =>
 
 builder.Services.AddApplicationInsightsTelemetry(new ApplicationInsightsServiceOptions
 {
-    ConnectionString = builder.Configuration["AppInsights:ConnectionString"],
+    ConnectionString = builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"],
 });
 
 builder.Services.AddControllers();
