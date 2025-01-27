@@ -29,7 +29,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("TMFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5173", "http://192.168.1.4:5173", "https://memories.harshjain17.com/", "https://lemon-moss-0ef6b9200.4.azurestaticapps.net\r\n").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+        policy.WithOrigins("http://localhost:5173", "http://192.168.1.4:5173", "https://memories.harshjain17.com/", "https://lemon-moss-0ef6b9200.4.azurestaticapps.net", "https://harshjain17.com").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
     });
 });
 
