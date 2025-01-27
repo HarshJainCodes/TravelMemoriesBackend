@@ -59,14 +59,15 @@ namespace TravelMemories.Controllers.Storage
             }
 
             _imageMetadataDBContext.SaveChanges();
-
             return Ok("Image uploaded successfully");
         }
 
         [HttpGet("AllTripData")]
         public async Task<List<ImageData>> GetImagesFromBlob()
         {
-            return await _blobStorageService.GetImagesFromBlob();
+            List<ImageData> allData = await _blobStorageService.GetImagesFromBlob();
+            _logger.LogInformation($"Got the data for all the trips, you have total {allData.Count} trips so far");
+            return allData;
         }
     }
 }

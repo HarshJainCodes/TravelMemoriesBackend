@@ -10,14 +10,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<IBlobStorageService, BlobStorageService>();
 builder.Services.AddScoped<IImageCompressService, ImageCompressService>();
 
-builder.Services.AddDbContext<ImageMetadataDBContext>(options =>
-{
-    options.UseSqlServer(builder.Configuration.GetConnectionString("ImageSqlServer"));
-});
-
 builder.Services.AddApplicationInsightsTelemetry(new ApplicationInsightsServiceOptions
 {
     ConnectionString = builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"],
+});
+
+builder.Services.AddDbContext<ImageMetadataDBContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration["ImageSqlServer"]);
 });
 
 builder.Services.AddControllers();
