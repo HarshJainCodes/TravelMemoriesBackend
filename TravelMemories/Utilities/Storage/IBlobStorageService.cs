@@ -23,8 +23,8 @@ namespace TravelMemories.Utilities.Storage
         public BlobStorageService(IConfiguration configuration, ImageMetadataDBContext imageMetadataDBContext)
         {
             _configuration = configuration;
-            var connString = configuration["AzureBlobStorage:ConnectionString"];
-            var containerName = configuration["AzureBlobStorage:ContainerName"];
+            var connString = configuration["BlobStorage_ConnectionString"];
+            var containerName = configuration["BlobStorage_ContainerName"];
 
             _containerClient = new BlobContainerClient(connString, containerName);
             _imageMetadataDBContext = imageMetadataDBContext;
@@ -58,7 +58,7 @@ namespace TravelMemories.Utilities.Storage
                     {
                         BlobSasBuilder sasBuilder = new BlobSasBuilder
                         {
-                            BlobContainerName = _configuration["AzureBlobStorage:ContainerName"],
+                            BlobContainerName = _configuration["BlobStorage_ContainerName"],
                             BlobName = blobName,
                             Resource = "b",
                             ExpiresOn = DateTime.UtcNow.AddHours(1),
