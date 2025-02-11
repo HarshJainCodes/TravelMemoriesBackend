@@ -1,4 +1,5 @@
 ﻿using Azure.Storage.Blobs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Jpeg;
@@ -10,6 +11,7 @@ using TravelMemories.Utilities.Storage;
 namespace TravelMemories.Controllers.Storage
 {
     [ApiController]
+    [Authorize]
     [Route("[controller]")]
     public class ImageUploadController : ControllerBase
     {
