@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TravelMemories.Database;
 
@@ -10,9 +11,11 @@ using TravelMemories.Database;
 namespace TravelMemories.Migrations
 {
     [DbContext(typeof(ImageMetadataDBContext))]
-    partial class ImageMetadataDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250214201245_addUsersTable")]
+    partial class addUsersTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -53,11 +56,8 @@ namespace TravelMemories.Migrations
 
             modelBuilder.Entity("TravelMemories.Contracts.Data.UserInfo", b =>
                 {
-                    b.Property<int>("UserID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserID"));
+                    b.Property<string>("UserID")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Email")
                         .IsRequired()

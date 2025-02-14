@@ -12,9 +12,12 @@ namespace TravelMemories.Database
 
         public DbSet<ImageMetadata> ImageMetadata {  get; set; }
 
+        public DbSet<UserInfo> UserInfo { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new ImageMetadataConfig());
+            modelBuilder.ApplyConfiguration(new UserInfoConfig());
         }
     }
 }
