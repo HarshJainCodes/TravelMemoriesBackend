@@ -1,9 +1,11 @@
 ﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Sas;
+using System.IdentityModel.Tokens.Jwt;
 using System.Reflection.Metadata;
 using TravelMemories.Contracts.Storage;
 using TravelMemories.Database;
+using TravelMemories.Utilities.Request;
 
 namespace TravelMemories.Utilities.Storage
 {
@@ -12,6 +14,8 @@ namespace TravelMemories.Utilities.Storage
         public Task<string> UploadBlobAsync(string fileName, Stream fileStream);
 
         public Task<List<ImageData>> GetImagesFromBlob();
+
+        public Task MoveAllBlobs(string destination);
     }
 
     public class BlobStorageService : IBlobStorageService
@@ -19,8 +23,11 @@ namespace TravelMemories.Utilities.Storage
         private readonly ImageMetadataDBContext _imageMetadataDBContext;
         private readonly BlobContainerClient _containerClient;
         private readonly IConfiguration _configuration;
+        private readonly IRequestContextProvider _requestContextProvider;
 
-        public BlobStorageService(IConfiguration configuration, ImageMetadataDBContext imageMetadataDBContext)
+        public BlobStorageService(IConfiguration configuration, 
+            ImageMetadataDBContext imageMetadataDBContext,
+            IRequestContextProvider requestContextProvider)
         {
             _configuration = configuration;
             var connString = configuration["BlobStorage_ConnectionString"];
@@ -28,6 +35,7 @@ namespace TravelMemories.Utilities.Storage
 
             _containerClient = new BlobContainerClient(connString, containerName);
             _imageMetadataDBContext = imageMetadataDBContext;
+            _requestContextProvider = requestContextProvider;
         }
 
         public async Task<string> UploadBlobAsync(string fileName, Stream fileStream)
@@ -40,9 +48,13 @@ namespace TravelMemories.Utilities.Storage
 
         public async Task<List<ImageData>> GetImagesFromBlob()
         {
+            JwtSecurityToken jwtToken = _requestContextProvider.GetJWTToken();
+
+            string userEmail = jwtToken.Claims.Where(cl => cl.Type == "email").FirstOrDefault().Value;
+
             var allBlobs = _containerClient.GetBlobs();
 
-            var groupedRes = _imageMetadataDBContext.ImageMetadata.GroupBy(x => x.TripName).ToList();
+            var groupedRes = _imageMetadataDBContext.ImageMetadata.Where(x => x.UploadedByEmail == userEmail).GroupBy(x => x.TripName).ToList();
 
             List<ImageData> allTripDetails = new List<ImageData>();
 
@@ -51,7 +63,7 @@ namespace TravelMemories.Utilities.Storage
                 ImageData imageData = new ImageData();
                 foreach (var tripDetail in trip)
                 {
-                    string blobName = Path.Combine(tripDetail.Year.ToString(), tripDetail.TripName, tripDetail.ImageName);
+                    string blobName = Path.Combine(userEmail, tripDetail.Year.ToString(), tripDetail.TripName, tripDetail.ImageName);
                     var blobClient = _containerClient.GetBlobClient(blobName);
 
                     if (blobClient.CanGenerateSasUri)
@@ -69,6 +81,7 @@ namespace TravelMemories.Utilities.Storage
                         Uri sasUri = blobClient.GenerateSasUri(sasBuilder);
 
                         imageData.TripTitle = tripDetail.TripName;
+                        imageData.Email = userEmail;
                         imageData.Year = tripDetail.Year;
                         imageData.Lat = tripDetail.X;
                         imageData.Lon = tripDetail.Y;
@@ -79,6 +92,24 @@ namespace TravelMemories.Utilities.Storage
             }
 
             return allTripDetails;
+        }
+
+        public async Task MoveAllBlobs(string destination)
+        {
+            await foreach (var blobItem in _containerClient.GetBlobsAsync())
+            {
+                Console.WriteLine(blobItem.Name);
+                string newBlobPath = Path.Combine(destination, blobItem.Name);
+
+                BlobClient oldBlob = _containerClient.GetBlobClient(blobItem.Name);
+                BlobClient newBlob = _containerClient.GetBlobClient(newBlobPath);
+
+                await newBlob.StartCopyFromUriAsync(oldBlob.Uri);
+
+                await oldBlob.DeleteIfExistsAsync();
+
+                Console.WriteLine($"moved {blobItem.Name} to {newBlobPath}");
+            }
         }
     }
 }

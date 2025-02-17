@@ -3,6 +3,7 @@
     public class ImageData
     {
         public string TripTitle { get; set; }
+        public string Email { get; set; }
 
         public float Lat { get; set; }
 

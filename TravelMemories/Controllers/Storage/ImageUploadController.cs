@@ -4,8 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Processing;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using TravelMemories.Contracts.Storage;
 using TravelMemories.Database;
+using TravelMemories.Utilities.Request;
 using TravelMemories.Utilities.Storage;
 
 namespace TravelMemories.Controllers.Storage
@@ -17,15 +20,21 @@ namespace TravelMemories.Controllers.Storage
     {
         IBlobStorageService _blobStorageService;
         IImageCompressService _imageCompressService;
+        IRequestContextProvider _requestContextProvider;
         ILogger<ImageUploadController> _logger;
 
         private readonly ImageMetadataDBContext _imageMetadataDBContext;
 
-        public ImageUploadController(ImageMetadataDBContext imageMetadataDBContext, IBlobStorageService blobStorageService, IImageCompressService imageCompressService, ILogger<ImageUploadController> logger)
+        public ImageUploadController(ImageMetadataDBContext imageMetadataDBContext, 
+            IBlobStorageService blobStorageService, 
+            IImageCompressService imageCompressService, 
+            ILogger<ImageUploadController> logger,
+            IRequestContextProvider requestContextProvider)
         {
             _imageMetadataDBContext = imageMetadataDBContext;
             _blobStorageService = blobStorageService;
             _imageCompressService = imageCompressService;
+            _requestContextProvider = requestContextProvider;
             _logger = logger;
         }
 
@@ -34,19 +43,22 @@ namespace TravelMemories.Controllers.Storage
         [HttpPost]
         public async Task<IActionResult> UploadImageToBlobAsync(List<IFormFile> images, string tripTitle, int year, float lat, float lon)
         {
-            if (images == null)
+            if (images.Count == 0)
             {
-                return BadRequest("Please attach a valid image");
+                return BadRequest("Please attach atleast 1 image");
             }
 
             var jpegOptions = new JpegEncoder { Quality = 50, SkipMetadata = true };
+
+            JwtSecurityToken jwtToken = _requestContextProvider.GetJWTToken();
+            string userEmail = jwtToken.Claims.Where(cl => cl.Type == "email").FirstOrDefault().Value;
 
             foreach (IFormFile image in images)
             {
                 MemoryStream compressedStream = _imageCompressService.CompressImage(image, jpegOptions);
 
                 _logger.LogInformation($"Uploading {image.FileName} to Blob Storage");
-                await _blobStorageService.UploadBlobAsync(Path.Combine(year.ToString(), tripTitle, image.FileName), compressedStream);
+                await _blobStorageService.UploadBlobAsync(Path.Combine(userEmail, year.ToString(), tripTitle, image.FileName), compressedStream);
                 _logger.LogInformation($"Done Uploading {image.FileName} to Blob Storage");
 
                 // metadat for the same file
@@ -56,7 +68,8 @@ namespace TravelMemories.Controllers.Storage
                     ImageName = image.FileName,
                     TripName = tripTitle,
                     X = lat,
-                    Y = lon
+                    Y = lon,
+                    UploadedByEmail = userEmail,
                 });
             }
 
@@ -71,5 +84,13 @@ namespace TravelMemories.Controllers.Storage
             _logger.LogInformation($"Got the data for all the trips, you have total {allData.Count} trips so far");
             return allData;
         }
+
+        // This was used to move the blobs to another folder for internal business logic
+        /*[HttpPost("Move")]
+        public async Task<ActionResult> MoveALLBlobs(string destinationFolderName)
+        {
+            await _blobStorageService.MoveAllBlobs(destinationFolderName);
+            return Ok();
+        }*/
     }
 }

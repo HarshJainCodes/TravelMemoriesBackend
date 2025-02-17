@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TravelMemories.Database;
 
@@ -10,9 +11,11 @@ using TravelMemories.Database;
 namespace TravelMemories.Migrations
 {
     [DbContext(typeof(ImageMetadataDBContext))]
-    partial class ImageMetadataDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250216182051_make email unique")]
+    partial class makeemailunique
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -37,10 +40,6 @@ namespace TravelMemories.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UploadedByEmail")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<float>("X")
                         .HasColumnType("real");
 
@@ -51,8 +50,6 @@ namespace TravelMemories.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("ID");
-
-                    b.HasIndex("UploadedByEmail");
 
                     b.ToTable("ImageMetadata", (string)null);
                 });
@@ -79,23 +76,6 @@ namespace TravelMemories.Migrations
                         .IsUnique();
 
                     b.ToTable("UserInfo", (string)null);
-                });
-
-            modelBuilder.Entity("TravelMemories.Contracts.Data.ImageMetadata", b =>
-                {
-                    b.HasOne("TravelMemories.Contracts.Data.UserInfo", "UploadedBy")
-                        .WithMany("Images")
-                        .HasForeignKey("UploadedByEmail")
-                        .HasPrincipalKey("Email")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("UploadedBy");
-                });
-
-            modelBuilder.Entity("TravelMemories.Contracts.Data.UserInfo", b =>
-                {
-                    b.Navigation("Images");
                 });
 #pragma warning restore 612, 618
         }

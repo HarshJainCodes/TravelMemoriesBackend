@@ -20,6 +20,8 @@ namespace TravelMemories.Contracts.Data.configs
             builder.Property(x => x.X).IsRequired();
 
             builder.Property(x => x.Y).IsRequired();
+
+            builder.HasOne(x => x.UploadedBy).WithMany(x => x.Images).HasForeignKey(x => x.UploadedByEmail).HasPrincipalKey(x => x.Email);
         }
     }
 }

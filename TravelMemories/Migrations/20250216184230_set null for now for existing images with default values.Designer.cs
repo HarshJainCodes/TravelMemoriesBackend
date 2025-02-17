@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TravelMemories.Database;
 
@@ -10,9 +11,11 @@ using TravelMemories.Database;
 namespace TravelMemories.Migrations
 {
     [DbContext(typeof(ImageMetadataDBContext))]
-    partial class ImageMetadataDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250216184230_set null for now for existing images with default values")]
+    partial class setnullfornowforexistingimageswithdefaultvalues
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -39,7 +42,9 @@ namespace TravelMemories.Migrations
 
                     b.Property<string>("UploadedByEmail")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(450)")
+                        .HasDefaultValue("harshjain17may@gmail.com");
 
                     b.Property<float>("X")
                         .HasColumnType("real");
