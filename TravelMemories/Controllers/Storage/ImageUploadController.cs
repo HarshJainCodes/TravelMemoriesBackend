@@ -38,6 +38,12 @@ namespace TravelMemories.Controllers.Storage
             _logger = logger;
         }
 
+        [HttpGet("CheckLogin")]
+        public async Task<IActionResult> CheckLogin()
+        {
+            return Ok();
+        }
+
         // there will be two methods, one that will upload image
         // second method will upload the image metadata
         [HttpPost]
