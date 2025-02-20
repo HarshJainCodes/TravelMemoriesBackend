@@ -47,6 +47,7 @@ namespace TravelMemories.Controllers.Storage
         // there will be two methods, one that will upload image
         // second method will upload the image metadata
         [HttpPost]
+        [DisableRequestSizeLimit]
         public async Task<IActionResult> UploadImageToBlobAsync(List<IFormFile> images, string tripTitle, int year, float lat, float lon)
         {
             if (images.Count == 0)
