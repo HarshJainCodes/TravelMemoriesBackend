@@ -12,7 +12,8 @@ namespace TravelMemories.Contracts.Data.configs
             builder.HasKey(x => x.UserID);
             builder.Property(x => x.Name).IsRequired();
             builder.Property(x => x.Email).IsRequired();
-
+            builder.Property(x => x.IsManualLogin).HasDefaultValue(false);
+            
             // this will make email address unique such that no users will have the same address and it will make lookups faster
             builder.HasIndex(x => x.Email).IsUnique();
         }

@@ -65,6 +65,75 @@ namespace TravelMemories.Controllers.Authentication
             });
         }
 
+        [HttpPost]
+        [Route("Login")]
+        public async Task<ActionResult> HandleManualLogin(ManualLogin request)
+        {
+            UserInfo user = _imageMetadataDbContext.UserInfo.Where(user => user.Email == request.Email).FirstOrDefault();
+
+            if (user == null)
+            {
+                return NotFound("User With This Email Does Not Exist");
+            }
+
+            if (user.IsManualLogin)
+            {
+                if (user.Password == request.Password)
+                {
+                    GenerateJWTToken(new JWTInputs
+                    {
+                        Name = request.UserName,
+                        Email = request.Email,
+                    });
+
+                    return Ok(new LoginResponse
+                    {
+                        UserName = request.UserName,
+                        IsError = false,
+                    });
+                }
+                else
+                {
+                    return BadRequest("Incorrect Email or Password");
+                }
+            }
+            return BadRequest("You Previously signed in with google with this email Id");
+        }
+
+        [HttpPost]
+        [Route("Register")]
+        public async Task<ActionResult> HandleManualRegister(ManualLogin request)
+        {
+            // check if the email already exists
+            UserInfo user = _imageMetadataDbContext.UserInfo.Where(user => user.Email == request.Email).FirstOrDefault();
+            if (user != null)
+            {
+                return BadRequest("User With This Email Already Exists");
+            }
+
+            _imageMetadataDbContext.UserInfo.Add(new UserInfo
+            {
+                Email = request.Email,
+                Name = request.UserName,
+                IsManualLogin = true,
+                Password = request.Password,
+            });
+
+            await _imageMetadataDbContext.SaveChangesAsync();
+
+            GenerateJWTToken(new JWTInputs
+            {
+                Name = request.UserName,
+                Email = request.Email,
+            });
+
+            return Ok(new LoginResponse
+            {
+                UserName = request.UserName,
+                IsError = false,
+            });
+        }
+
         [NonAction]
         private void GenerateJWTToken(JWTInputs jwtInputs)
         {
@@ -137,5 +206,14 @@ namespace TravelMemories.Controllers.Authentication
         public bool IsError { get; set; }
 
         public string? ErrorMessage { get; set; }
+    }
+
+    public class ManualLogin
+    {
+        public string UserName { get; set; }
+
+        public string Email {  set; get; }
+
+        public string Password { set; get; }
     }
 }

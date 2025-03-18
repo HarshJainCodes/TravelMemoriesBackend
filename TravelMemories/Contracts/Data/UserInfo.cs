@@ -8,6 +8,10 @@
 
         public string Email { get; set; }
 
+        public string Password {  get; set; }
+
+        public bool IsManualLogin { get; set; }
+
         // this is usefull for foreign key, metadata table will reference this
         public ICollection<ImageMetadata> Images { get; set; } = new List<ImageMetadata>();
     }

@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TravelMemories.Database;
 
@@ -10,9 +11,11 @@ using TravelMemories.Database;
 namespace TravelMemories.Migrations
 {
     [DbContext(typeof(ImageMetadataDBContext))]
-    partial class ImageMetadataDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250318172652_test")]
+    partial class test
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
