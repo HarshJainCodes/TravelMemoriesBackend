@@ -147,7 +147,7 @@ namespace TravelMemories.Controllers.Authentication
                     new Claim(ClaimTypes.Name, jwtInputs.Name),
                     new Claim(ClaimTypes.Email, jwtInputs.Email),
                 }),
-                Expires = DateTime.Now.AddMinutes(15),
+                Expires = DateTime.Now.AddDays(1f),
                 SigningCredentials = new(new SymmetricSecurityKey(signingKeySecretText), SecurityAlgorithms.HmacSha256Signature),
             };
 
