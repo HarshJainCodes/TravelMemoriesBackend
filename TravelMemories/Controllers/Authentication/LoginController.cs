@@ -157,7 +157,7 @@ namespace TravelMemories.Controllers.Authentication
 
             HttpContext.Response.Cookies.Append("token", generatedToken, new CookieOptions
             {
-                Expires = DateTime.Now.AddMinutes(15),
+                Expires = DateTime.Now.AddDays(1f),
                 HttpOnly = true,
                 Secure = true,
                 IsEssential = true,
