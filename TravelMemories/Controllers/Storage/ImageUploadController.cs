@@ -7,6 +7,7 @@ using SixLabors.ImageSharp.Processing;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using TravelMemories.Contracts.Storage;
+using TravelMemories.Controllers.Authentication;
 using TravelMemories.Database;
 using TravelMemories.Utilities.Request;
 using TravelMemories.Utilities.Storage;
@@ -41,7 +42,8 @@ namespace TravelMemories.Controllers.Storage
         [HttpGet("CheckLogin")]
         public async Task<IActionResult> CheckLogin()
         {
-            return Ok();
+            JwtSecurityToken jwtToken = _requestContextProvider.GetJWTToken();
+            return Ok(jwtToken.Claims.Where(c => c.Type == "unique_name").First().Value);
         }
 
         // there will be two methods, one that will upload image
