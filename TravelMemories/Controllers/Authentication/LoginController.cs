@@ -61,6 +61,7 @@ namespace TravelMemories.Controllers.Authentication
             return Ok(new LoginResponse
             {
                 UserName = userName,
+                Email = userEmail,
                 IsError = false,
             });
         }
@@ -89,6 +90,7 @@ namespace TravelMemories.Controllers.Authentication
                     return Ok(new LoginResponse
                     {
                         UserName = request.UserName,
+                        Email = request.Email,
                         IsError = false,
                     });
                 }
@@ -130,6 +132,7 @@ namespace TravelMemories.Controllers.Authentication
             return Ok(new LoginResponse
             {
                 UserName = request.UserName,
+                Email = request.Email,
                 IsError = false,
             });
         }
@@ -218,6 +221,8 @@ namespace TravelMemories.Controllers.Authentication
     public class LoginResponse
     {
         public string UserName { get; set; }
+
+        public string Email { get; set; }
 
         public bool IsError { get; set; }
 
