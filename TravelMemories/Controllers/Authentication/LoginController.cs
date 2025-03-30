@@ -165,6 +165,22 @@ namespace TravelMemories.Controllers.Authentication
             });
         }
 
+        [HttpGet("Logout")]
+        public async Task<ActionResult> Logout()
+        {
+            // this will invalidate the token from the frontend but the users might still be able to make requests with the 'stolen' tokenhhhhhhh
+            HttpContext.Response.Cookies.Append("token", "", new CookieOptions
+            {
+                Expires = DateTime.Now.AddDays(-1),
+                HttpOnly = true,
+                Secure = true,
+                IsEssential = true,
+                SameSite = SameSiteMode.None,
+            });
+
+            return Ok();
+        }
+
         [NonAction]
         private async Task<JObject> ValidateGoogleTokenV2(string accessToken)
         {
