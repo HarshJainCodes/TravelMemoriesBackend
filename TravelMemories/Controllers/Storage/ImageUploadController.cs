@@ -1,10 +1,12 @@
 ﻿using Azure.Storage.Blobs;
+using ImageMagick;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Processing;
 using System.IdentityModel.Tokens.Jwt;
+using System.IO;
 using System.Security.Claims;
 using TravelMemories.Contracts.Storage;
 using TravelMemories.Controllers.Authentication;
@@ -70,7 +72,7 @@ namespace TravelMemories.Controllers.Storage
                 await _blobStorageService.UploadBlobAsync(Path.Combine(userEmail, year.ToString(), tripTitle, image.FileName), compressedStream);
                 _logger.LogInformation($"Done Uploading {image.FileName} to Blob Storage");
 
-                // metadat for the same file
+                // metadata for the same file
                 _imageMetadataDBContext.ImageMetadata.Add(new Contracts.Data.ImageMetadata
                 {
                     Year = year,

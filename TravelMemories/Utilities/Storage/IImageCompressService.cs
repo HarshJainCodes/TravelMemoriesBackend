@@ -1,4 +1,5 @@
-﻿using SixLabors.ImageSharp;
+﻿using ImageMagick;
+using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using System.Diagnostics;
 
@@ -23,9 +24,20 @@ namespace TravelMemories.Utilities.Storage
             MemoryStream compressedStream = new MemoryStream();
             Stopwatch sw = Stopwatch.StartNew();
 
-            using var imageData = Image.Load(imageFile.OpenReadStream());
+            if (Path.GetExtension(imageFile.FileName) == ".HEIC")
+            {
+                using var img = new MagickImage(imageFile.OpenReadStream());
+                img.Format = MagickFormat.Jpeg;
+                img.Quality = 50;
 
-            imageData.Save(compressedStream, jpegOptions);
+                img.Write(compressedStream);
+            } else
+            {
+                using var imageData = Image.Load(imageFile.OpenReadStream());
+                imageData.Save(compressedStream, jpegOptions);
+            }
+
+                
             _logger.LogInformation($"Compressed {imageFile.FileName}, took {sw.ElapsedMilliseconds}ms");
             sw.Stop();
             // this is required because writing to a stream will set its position to end, and when we try to read it (for ex to upload to storage account),
