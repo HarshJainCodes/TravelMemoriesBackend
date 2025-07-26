@@ -173,7 +173,7 @@ namespace TravelMemories.Controllers.Authentication
         public async Task<ActionResult> Logout()
         {
             // this will invalidate the token from the frontend but the users might still be able to make requests with the 'stolen' tokenhhhhhhh
-            HttpContext.Response.Cookies.Append("token", "", new CookieOptions
+            HttpContext.Response.Cookies.Append("travelMemoriestoken", "", new CookieOptions
             {
                 Expires = DateTime.Now.AddDays(-1),
                 HttpOnly = true,
