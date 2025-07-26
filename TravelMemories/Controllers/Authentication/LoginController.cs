@@ -158,7 +158,7 @@ namespace TravelMemories.Controllers.Authentication
 
             var generatedToken = tokenHandler.WriteToken(token);
 
-            HttpContext.Response.Cookies.Append("token", generatedToken, new CookieOptions
+            HttpContext.Response.Cookies.Append("travelMemoriestoken", generatedToken, new CookieOptions
             {
                 Expires = DateTime.Now.AddDays(1f),
                 HttpOnly = true,

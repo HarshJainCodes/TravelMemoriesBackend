@@ -43,7 +43,7 @@ builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddCookie(x => x.Cookie.Name = "token")
+}).AddCookie(x => x.Cookie.Name = "travelMemoriestoken")
 .AddJwtBearer(options =>
 {
     options.SaveToken = true;
@@ -59,7 +59,7 @@ builder.Services.AddAuthentication(options =>
     {
         OnMessageReceived = context =>
         {
-            context.Token = context.Request.Cookies["token"];
+            context.Token = context.Request.Cookies["travelMemoriestoken"];
             return Task.CompletedTask;
         }
     };
