@@ -13,7 +13,7 @@ namespace TravelMemories.Utilities.Request
 
         public JwtSecurityToken GetJWTToken()
         {
-            string JWTTokenFromCookie = _httpContextAccessor.HttpContext.Request.Cookies["token"];
+            string JWTTokenFromCookie = _httpContextAccessor.HttpContext.Request.Cookies["travelMemoriestoken"];
 
             if (JWTTokenFromCookie == null)
             {
