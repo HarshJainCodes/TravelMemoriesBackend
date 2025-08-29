@@ -40,6 +40,7 @@ namespace TravelMemories.Controllers.Authentication
 
             if (maybeUser != null)
             {
+                maybeUser.ProfilePictureURL = pictureURL;   // this will update the profile picture if the user has changed their profile picture on google
             }
             else
             {
@@ -47,6 +48,7 @@ namespace TravelMemories.Controllers.Authentication
                 {
                     Name = userName,
                     Email = userEmail,
+                    ProfilePictureURL = pictureURL,
                 });
 
                 await _imageMetadataDbContext.SaveChangesAsync();

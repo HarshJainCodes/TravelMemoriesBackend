@@ -12,6 +12,7 @@ namespace TravelMemories.Contracts.Data.configs
             builder.HasKey(x => x.UserID);
             builder.Property(x => x.Name).IsRequired();
             builder.Property(x => x.Email).IsRequired();
+            builder.Property(x => x.ProfilePictureURL).HasDefaultValue("");
             builder.Property(x => x.IsManualLogin).HasDefaultValue(false);
             builder.Property(x => x.Password).HasDefaultValue("");
             

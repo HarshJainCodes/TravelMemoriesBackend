@@ -10,6 +10,8 @@
 
         public string Password {  get; set; }
 
+        public string ProfilePictureURL { get; set; }
+
         public bool IsManualLogin { get; set; }
 
         // this is usefull for foreign key, metadata table will reference this
