@@ -45,7 +45,11 @@ namespace TravelMemories.Controllers.Storage
         public async Task<IActionResult> CheckLogin()
         {
             JwtSecurityToken jwtToken = _requestContextProvider.GetJWTToken();
-            return Ok(jwtToken.Claims.Where(c => c.Type == "email").First().Value);
+
+            string userEmail = jwtToken.Claims.Where(c => c.Type == "email").First().Value;
+            string profilePicUrl = _imageMetadataDBContext.UserInfo.Where(u => u.Email == userEmail).First().ProfilePictureURL;
+
+            return Ok(new { userEmail, profilePicUrl });
         }
 
         // there will be two methods, one that will upload image
