@@ -14,10 +14,13 @@ namespace TravelMemories.Database
 
         public DbSet<UserInfo> UserInfo { get; set; }
 
+        public DbSet<VerificationCodes> VerificationCodes { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new ImageMetadataConfig());
             modelBuilder.ApplyConfiguration(new UserInfoConfig());
+            modelBuilder.ApplyConfiguration(new VerificationCodesConfig());
         }
     }
 }
