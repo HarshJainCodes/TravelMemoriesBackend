@@ -65,6 +65,7 @@ namespace TravelMemories.Controllers.Authentication
             {
                 UserName = userName,
                 Email = userEmail,
+                ProfilePictureURL = pictureURL,
                 IsError = false,
             });
         }
@@ -229,6 +230,8 @@ namespace TravelMemories.Controllers.Authentication
         public string Email { get; set; }
 
         public bool IsError { get; set; }
+
+        public string ProfilePictureURL { get; set; }
 
         public string? ErrorMessage { get; set; }
     }
