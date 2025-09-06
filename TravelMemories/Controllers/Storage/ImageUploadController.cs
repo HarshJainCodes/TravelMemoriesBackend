@@ -8,6 +8,7 @@ using SixLabors.ImageSharp.Processing;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Security.Claims;
+using TravelMemories.Contracts.Data;
 using TravelMemories.Contracts.Storage;
 using TravelMemories.Controllers.Authentication;
 using TravelMemories.Database;
@@ -47,9 +48,12 @@ namespace TravelMemories.Controllers.Storage
             JwtSecurityToken jwtToken = _requestContextProvider.GetJWTToken();
 
             string userEmail = jwtToken.Claims.Where(c => c.Type == "email").First().Value;
-            string profilePicUrl = _imageMetadataDBContext.UserInfo.Where(u => u.Email == userEmail).First().ProfilePictureURL;
+            UserInfo user = _imageMetadataDBContext.UserInfo.Where(u => u.Email == userEmail).First();
 
-            return Ok(new { userEmail, profilePicUrl });
+            string profilePicUrl = user.ProfilePictureURL;
+            string userName = user.Name;
+
+            return Ok(new { userEmail, profilePicUrl, userName });
         }
 
         // there will be two methods, one that will upload image
