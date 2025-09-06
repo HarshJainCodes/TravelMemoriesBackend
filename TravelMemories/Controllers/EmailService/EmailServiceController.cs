@@ -8,7 +8,6 @@ using TravelMemories.Database;
 namespace TravelMemories.Controllers.EmailService
 {
     [ApiController]
-    [Authorize]
     [Route("[controller]")]
     public class EmailServiceController : ControllerBase
     {
