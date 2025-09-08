@@ -3,21 +3,25 @@ using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Net.Mail;
 using TravelMemories.Contracts.Data;
+using TravelMemories.Controllers.Authentication;
 using TravelMemories.Database;
 
 namespace TravelMemories.Controllers.EmailService
 {
     [ApiController]
+    [AllowAnonymous]
     [Route("[controller]")]
     public class EmailServiceController : ControllerBase
     {
         private IConfiguration _configuration;
         private ImageMetadataDBContext _imageMetadataDBContext;
+        private LoginController _loginController;
 
-        public EmailServiceController(IConfiguration configuration, ImageMetadataDBContext imageMetadataDBContext)
+        public EmailServiceController(IConfiguration configuration, ImageMetadataDBContext imageMetadataDBContext, LoginController loginController)
         {
             _configuration = configuration;
             _imageMetadataDBContext = imageMetadataDBContext;
+            _loginController = loginController;
         }
 
         [HttpPost]
@@ -73,6 +77,31 @@ namespace TravelMemories.Controllers.EmailService
             }
         }
 
+        [HttpPost("VerifyOtp")]
+        public async Task<IActionResult> VerifyOTP(VerifyOTPParams verifyOTPParams)
+        {
+            VerificationCodes verificationCodes = _imageMetadataDBContext.VerificationCodes.Where((record) => record.UserEmail == verifyOTPParams.Email).FirstOrDefault();
+
+            if (verificationCodes != null)
+            {
+                if (verificationCodes.OTP.ToString() == verifyOTPParams.OTP)
+                {
+                    _loginController.GenerateJWTToken(new JWTInputs
+                    {
+                        Name = "User",
+                        Email = verifyOTPParams.Email,
+                    }, HttpContext);
+
+                    return Ok();
+                }
+                return Unauthorized();
+            }
+            else
+            {
+                return Unauthorized();
+            }
+        }
+
         [NonAction]
         public int GenerateRandomOTP()
         {
@@ -84,5 +113,12 @@ namespace TravelMemories.Controllers.EmailService
     public class EmailParameters
     {
         public string ReceiverEmail { get; set; }
+    }
+
+    public class VerifyOTPParams
+    {
+        public string Email { get; set; }
+
+        public string OTP { get; set; }
     }
 }

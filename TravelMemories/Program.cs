@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using TravelMemories.Utilities.Request;
+using TravelMemories.Controllers.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +15,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<IBlobStorageService, BlobStorageService>();
 builder.Services.AddScoped<IImageCompressService, ImageCompressService>();
 builder.Services.AddScoped<IRequestContextProvider, RequestContextProvider>();
+builder.Services.AddScoped<LoginController, LoginController>();
 
 builder.Services.AddApplicationInsightsTelemetry(new ApplicationInsightsServiceOptions
 {

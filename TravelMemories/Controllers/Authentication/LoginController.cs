@@ -59,7 +59,7 @@ namespace TravelMemories.Controllers.Authentication
             {
                 Name = userName,
                 Email = userEmail,
-            });
+            }, HttpContext);
 
             return Ok(new LoginResponse
             {
@@ -89,7 +89,7 @@ namespace TravelMemories.Controllers.Authentication
                     {
                         Name = request.UserName,
                         Email = request.Email,
-                    });
+                    }, HttpContext);
 
                     return Ok(new LoginResponse
                     {
@@ -131,7 +131,7 @@ namespace TravelMemories.Controllers.Authentication
             {
                 Name = request.UserName,
                 Email = request.Email,
-            });
+            }, HttpContext);
 
             return Ok(new LoginResponse
             {
@@ -142,7 +142,7 @@ namespace TravelMemories.Controllers.Authentication
         }
 
         [NonAction]
-        private void GenerateJWTToken(JWTInputs jwtInputs)
+        public void GenerateJWTToken(JWTInputs jwtInputs, HttpContext httpContext)
         {
             var signingKeySecretText = Encoding.ASCII.GetBytes(_configuration["IssuerSigningKeySecretText"]);
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -154,7 +154,7 @@ namespace TravelMemories.Controllers.Authentication
                     new Claim(ClaimTypes.Name, jwtInputs.Name),
                     new Claim(ClaimTypes.Email, jwtInputs.Email),
                 }),
-                Expires = DateTime.Now.AddDays(1f),
+                Expires = DateTime.Now.AddDays(20f),
                 SigningCredentials = new(new SymmetricSecurityKey(signingKeySecretText), SecurityAlgorithms.HmacSha256Signature),
             };
 
@@ -162,7 +162,7 @@ namespace TravelMemories.Controllers.Authentication
 
             var generatedToken = tokenHandler.WriteToken(token);
 
-            HttpContext.Response.Cookies.Append("travelMemoriestoken", generatedToken, new CookieOptions
+            httpContext.Response.Cookies.Append("travelMemoriestoken", generatedToken, new CookieOptions
             {
                 Expires = DateTime.Now.AddDays(1f),
                 HttpOnly = true,
