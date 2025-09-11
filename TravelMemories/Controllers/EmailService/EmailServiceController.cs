@@ -50,6 +50,7 @@ namespace TravelMemories.Controllers.EmailService
             {
                 // has already sent an OTP to this email, update the OTP
                 existingEmail.OTP = otp;
+                existingEmail.IssuedAt = DateTime.UtcNow;
             }
             else
             {
@@ -86,6 +87,7 @@ namespace TravelMemories.Controllers.EmailService
             if (verificationCodes != null)
             {
                 // if OTP is older than 10 minutes, reject it
+                TimeSpan minutesPassed = (DateTime.UtcNow - verificationCodes.IssuedAt);
                 if (verificationCodes.OTP.ToString() == verifyOTPParams.OTP && (DateTime.UtcNow - verificationCodes.IssuedAt).Minutes < 10)
                 {
                     _loginController.GenerateJWTToken(new JWTInputs
