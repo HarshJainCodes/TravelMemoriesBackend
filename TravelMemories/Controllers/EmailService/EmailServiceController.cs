@@ -85,7 +85,8 @@ namespace TravelMemories.Controllers.EmailService
 
             if (verificationCodes != null)
             {
-                if (verificationCodes.OTP.ToString() == verifyOTPParams.OTP)
+                // if OTP is older than 10 minutes, reject it
+                if (verificationCodes.OTP.ToString() == verifyOTPParams.OTP && (DateTime.UtcNow - verificationCodes.IssuedAt).Minutes < 10)
                 {
                     _loginController.GenerateJWTToken(new JWTInputs
                     {
