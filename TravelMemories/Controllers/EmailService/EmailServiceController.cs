@@ -58,6 +58,7 @@ namespace TravelMemories.Controllers.EmailService
                 {
                     UserEmail = emailParameters.ReceiverEmail,
                     OTP = otp,
+                    IssuedAt = DateTime.UtcNow,
                 });
             }
             await _imageMetadataDBContext.SaveChangesAsync();

@@ -12,6 +12,8 @@ namespace TravelMemories.Contracts.Data.configs
             builder.HasKey(x => x.UserEmail);
 
             builder.Property(x => x.OTP).IsRequired();
+
+            builder.Property(x => x.IssuedAt).IsRequired();
         }
     }
 }

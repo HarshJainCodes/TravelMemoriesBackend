@@ -5,5 +5,7 @@
         public string UserEmail { get; set; }
 
         public int OTP { get; set; }
+
+        public DateTime IssuedAt { get; set; }
     }
 }
