@@ -169,6 +169,7 @@ namespace TravelMemories.Controllers.Authentication
                 Secure = true,
                 IsEssential = true,
                 SameSite = SameSiteMode.None,
+                Domain = _configuration["CookiesDomain"],
             });
         }
 
