@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Net.Mail;
-using TravelMemories.Contracts.Data;
+using TravelMemoriesBackend.Contracts.Data;
 using TravelMemories.Controllers.Authentication;
 using TravelMemories.Database;
 

@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using TravelMemories.Contracts.Data;
-using TravelMemories.Contracts.Data.configs;
+using TravelMemoriesBackend.Contracts.Data;
+using TravelMemoriesBackend.Contracts.Data.configs;
 
 namespace TravelMemories.Database
 {

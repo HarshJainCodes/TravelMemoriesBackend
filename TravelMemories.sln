@@ -5,6 +5,8 @@ VisualStudioVersion = 17.9.34728.123
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TravelMemories", "TravelMemories\TravelMemories.csproj", "{11029A69-B9A6-4364-90A0-3001C9D21DAF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TravelMemoriesBackend.Contracts", "TravelMemoriesBackend.Contracts\TravelMemoriesBackend.Contracts.csproj", "{7BB504D2-EE62-4590-8AA4-F9364CD7D019}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{11029A69-B9A6-4364-90A0-3001C9D21DAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{11029A69-B9A6-4364-90A0-3001C9D21DAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{11029A69-B9A6-4364-90A0-3001C9D21DAF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7BB504D2-EE62-4590-8AA4-F9364CD7D019}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7BB504D2-EE62-4590-8AA4-F9364CD7D019}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7BB504D2-EE62-4590-8AA4-F9364CD7D019}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7BB504D2-EE62-4590-8AA4-F9364CD7D019}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

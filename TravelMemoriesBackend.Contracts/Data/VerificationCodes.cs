@@ -1,4 +1,10 @@
-﻿namespace TravelMemories.Contracts.Data
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace TravelMemoriesBackend.Contracts.Data
 {
     public class VerificationCodes
     {

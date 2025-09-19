@@ -1,7 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace TravelMemories.Contracts.Data.configs
+namespace TravelMemoriesBackend.Contracts.Data.configs
 {
     public class UserInfoConfig : IEntityTypeConfiguration<UserInfo>
     {
@@ -15,7 +20,7 @@ namespace TravelMemories.Contracts.Data.configs
             builder.Property(x => x.ProfilePictureURL).HasDefaultValue("");
             builder.Property(x => x.IsManualLogin).HasDefaultValue(false);
             builder.Property(x => x.Password).HasDefaultValue("");
-            
+
             // this will make email address unique such that no users will have the same address and it will make lookups faster
             builder.HasIndex(x => x.Email).IsUnique();
         }

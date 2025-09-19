@@ -3,7 +3,7 @@ using Azure.Storage.Blobs.Models;
 using Azure.Storage.Sas;
 using System.IdentityModel.Tokens.Jwt;
 using System.Reflection.Metadata;
-using TravelMemories.Contracts.Storage;
+using TravelMemoriesBackend.Contracts.Storage;
 using TravelMemories.Database;
 using TravelMemories.Utilities.Request;
 

@@ -8,8 +8,8 @@ using SixLabors.ImageSharp.Processing;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Security.Claims;
-using TravelMemories.Contracts.Data;
-using TravelMemories.Contracts.Storage;
+using TravelMemoriesBackend.Contracts.Data;
+using TravelMemoriesBackend.Contracts.Storage;
 using TravelMemories.Controllers.Authentication;
 using TravelMemories.Database;
 using TravelMemories.Utilities.Request;
@@ -81,7 +81,7 @@ namespace TravelMemories.Controllers.Storage
                 _logger.LogInformation($"Done Uploading {image.FileName} to Blob Storage");
 
                 // metadata for the same file
-                _imageMetadataDBContext.ImageMetadata.Add(new Contracts.Data.ImageMetadata
+                _imageMetadataDBContext.ImageMetadata.Add(new ImageMetadata
                 {
                     Year = year,
                     ImageName = image.FileName,
