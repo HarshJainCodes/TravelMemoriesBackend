@@ -26,6 +26,13 @@ namespace TravelMemories.Controllers.Authentication
             _imageMetadataDbContext = imageMetadataDBContext;
         }
 
+        [HttpGet]
+        [Route("Health-Check")]
+        public async Task<IActionResult> HealthCheck()
+        {
+            return Ok();
+        }
+
         [HttpPost]
         [Route("googleLogin")]
         public async Task<ActionResult> HandleLoginWithGoogle(HandleWithGoogleRequest request)
