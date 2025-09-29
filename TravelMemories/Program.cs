@@ -17,6 +17,7 @@ builder.Services.AddScoped<IImageCompressService, ImageCompressService>();
 builder.Services.AddScoped<IRequestContextProvider, RequestContextProvider>();
 builder.Services.AddScoped<LoginController, LoginController>();
 
+
 builder.Services.AddApplicationInsightsTelemetry(new ApplicationInsightsServiceOptions
 {
     ConnectionString = builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"],
