@@ -21,7 +21,7 @@ jobs:
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.x'
+          dotnet-version: "8.x"
 
       - name: Build with dotnet
         run: dotnet build --configuration Release
@@ -38,18 +38,19 @@ jobs:
   deploy:
     runs-on: windows-latest
     needs: build
-    
+
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: .net-app
-      
+          path: myapp # download into ./myapp
+
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'travelmemories'
-          slot-name: 'Production'
-          package: .
+          app-name: "travelmemories"
+          slot-name: "Production"
+          package: ./myapp # <--- point to the publish folder
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_32DC8AFF0B91450FB9EE67C4CB635AE7 }}
