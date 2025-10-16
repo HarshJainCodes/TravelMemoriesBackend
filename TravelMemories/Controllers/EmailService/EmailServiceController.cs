@@ -5,6 +5,7 @@ using System.Net.Mail;
 using TravelMemories.Contracts.Data;
 using TravelMemories.Controllers.Authentication;
 using TravelMemories.Database;
+using TravelMemoriesBackend.Contracts.Data;
 
 namespace TravelMemories.Controllers.EmailService
 {
