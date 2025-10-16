@@ -9,7 +9,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Security.Claims;
 using TravelMemories.Contracts.Data;
-using TravelMemories.Contracts.Storage;
+using TravelMemoriesBackend.Contracts.Storage;
 using TravelMemories.Controllers.Authentication;
 using TravelMemories.Database;
 using TravelMemories.Utilities.Request;

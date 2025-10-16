@@ -1,5 +1,5 @@
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
-using TravelMemories.Contracts.Storage;
+using TravelMemoriesBackend.Contracts.Storage;
 using TravelMemories.Database;
 using TravelMemories.Utilities.Storage;
 using Microsoft.EntityFrameworkCore;

@@ -1,6 +1,11 @@
-﻿namespace TravelMemories.Contracts.Storage
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace TravelMemoriesBackend.Contracts.Storage
 {
-    // we will get this info from the frontend
     public class ImageUpload
     {
         public int Year { get; set; }
