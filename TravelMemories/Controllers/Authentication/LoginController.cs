@@ -9,6 +9,7 @@ using System.Security.Claims;
 using System.Text;
 using TravelMemories.Contracts.Data;
 using TravelMemories.Database;
+using TravelMemoriesBackend.Contracts.Data;
 
 namespace TravelMemories.Controllers.Authentication
 {

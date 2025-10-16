@@ -14,6 +14,7 @@ using TravelMemories.Controllers.Authentication;
 using TravelMemories.Database;
 using TravelMemories.Utilities.Request;
 using TravelMemories.Utilities.Storage;
+using TravelMemoriesBackend.Contracts.Data;
 
 namespace TravelMemories.Controllers.Storage
 {
@@ -81,7 +82,7 @@ namespace TravelMemories.Controllers.Storage
                 _logger.LogInformation($"Done Uploading {image.FileName} to Blob Storage");
 
                 // metadata for the same file
-                _imageMetadataDBContext.ImageMetadata.Add(new Contracts.Data.ImageMetadata
+                _imageMetadataDBContext.ImageMetadata.Add(new TravelMemoriesBackend.Contracts.Data.ImageMetadata
                 {
                     Year = year,
                     ImageName = image.FileName,

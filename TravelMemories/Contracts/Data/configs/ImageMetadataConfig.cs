@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using TravelMemoriesBackend.Contracts.Data;
 
 namespace TravelMemories.Contracts.Data.configs
 {
