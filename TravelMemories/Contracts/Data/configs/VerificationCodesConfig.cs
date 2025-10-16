@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace TravelMemoriesBackend.Contracts.Data.configs
+namespace TravelMemories.Contracts.Data.configs
 {
     public class VerificationCodesConfig : IEntityTypeConfiguration<VerificationCodes>
     {

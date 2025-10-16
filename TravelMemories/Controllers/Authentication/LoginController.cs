@@ -7,7 +7,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
-using TravelMemoriesBackend.Contracts.Data;
+using TravelMemories.Contracts.Data;
 using TravelMemories.Database;
 
 namespace TravelMemories.Controllers.Authentication
