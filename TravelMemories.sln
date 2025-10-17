@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TravelMemories", "TravelMem
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TravelMemoriesBackend.Contracts", "TravelMemoriesBackend.Contracts\TravelMemoriesBackend.Contracts.csproj", "{015C33A0-4414-4A93-BEDC-83A0AC6255DF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TravelMemoriesBackend.ApiClient", "TravelMemoriesBackend.ApiClient\TravelMemoriesBackend.ApiClient.csproj", "{C1E93357-0FA6-4824-8B0D-E9D055315EBA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{015C33A0-4414-4A93-BEDC-83A0AC6255DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{015C33A0-4414-4A93-BEDC-83A0AC6255DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{015C33A0-4414-4A93-BEDC-83A0AC6255DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1E93357-0FA6-4824-8B0D-E9D055315EBA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1E93357-0FA6-4824-8B0D-E9D055315EBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1E93357-0FA6-4824-8B0D-E9D055315EBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1E93357-0FA6-4824-8B0D-E9D055315EBA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
