@@ -4,6 +4,16 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+	  <Authors>
+		  Harsh Jain
+	  </Authors>
+	  <Version>0.0.2</Version>
+	  <Description>
+		  This project contains the contract classes for Travel Memories Backend API.
+	  </Description>
+	  <RepositoryUrl>
+		  https://github.com/HarshJainCodes/TravelMemoriesBackend
+	  </RepositoryUrl>
   </PropertyGroup>
 
 </Project>

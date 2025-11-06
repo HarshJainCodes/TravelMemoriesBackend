@@ -8,6 +8,9 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using TravelMemories.Utilities.Request;
 using TravelMemories.Controllers.Authentication;
+using Microsoft.IdentityModel.Abstractions;
+using TravelMemories.Configuration.AppInsights;
+using Microsoft.ApplicationInsights.Extensibility;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +24,8 @@ builder.Services.AddApplicationInsightsTelemetry(new ApplicationInsightsServiceO
 {
     ConnectionString = builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"],
 });
+
+builder.Services.AddSingleton<ITelemetryInitializer, AppInsightsConfiguration>();
 
 builder.Services.AddDbContext<ImageMetadataDBContext>(options =>
 {
