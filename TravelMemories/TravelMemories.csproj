@@ -17,8 +17,12 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.SemanticKernel.Connectors.AzureOpenAI" Version="1.67.1" />
+    <PackageReference Include="Microsoft.SemanticKernel.Core" Version="1.67.1" />
+    <PackageReference Include="ModelContextProtocol.AspNetCore" Version="0.3.0-preview.4" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.6" />
+    <PackageReference Include="Stef.ModelContextProtocol.SemanticKernel" Version="0.6.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 

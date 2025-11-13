@@ -19,6 +19,7 @@ builder.Services.AddScoped<IBlobStorageService, BlobStorageService>();
 builder.Services.AddScoped<IImageCompressService, ImageCompressService>();
 builder.Services.AddScoped<IRequestContextProvider, RequestContextProvider>();
 builder.Services.AddScoped<LoginController, LoginController>();
+builder.Services.AddHttpClient();
 
 builder.Services.AddApplicationInsightsTelemetry(new ApplicationInsightsServiceOptions
 {
