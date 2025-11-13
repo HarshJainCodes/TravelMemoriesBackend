@@ -17,11 +17,14 @@ namespace TravelMemories.Database
 
         public DbSet<VerificationCodes> VerificationCodes { get; set; }
 
+        public DbSet<SubscriptionDetails> SubscriptionDetails { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new ImageMetadataConfig());
             modelBuilder.ApplyConfiguration(new UserInfoConfig());
             modelBuilder.ApplyConfiguration(new VerificationCodesConfig());
+            modelBuilder.ApplyConfiguration(new SubscriptionConfig());
         }
     }
 }

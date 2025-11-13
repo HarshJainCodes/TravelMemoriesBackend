@@ -44,6 +44,7 @@ namespace TravelMemories.Controllers.Storage
         }
 
         [HttpGet("CheckLogin")]
+
         public async Task<IActionResult> CheckLogin()
         {
             JwtSecurityToken jwtToken = _requestContextProvider.GetJWTToken();
@@ -57,10 +58,20 @@ namespace TravelMemories.Controllers.Storage
             return Ok(new { userEmail, profilePicUrl, userName });
         }
 
-        // there will be two methods, one that will upload image
-        // second method will upload the image metadata
+        /// <summary>
+        /// Uploads the images to Blob Storage after compressing them
+        /// Also updates the metadata database with the image details like year, trip name, lat, lon etc.
+        /// </summary>
+        /// <param name="images"></param>
+        /// <param name="tripTitle"></param>
+        /// <param name="year"></param>
+        /// <param name="lat"></param>
+        /// <param name="lon"></param>
+        /// <returns></returns>
         [HttpPost]
         [DisableRequestSizeLimit]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UploadImageToBlobAsync(List<IFormFile> images, string tripTitle, int year, float lat, float lon)
         {
             if (images.Count == 0)
@@ -72,10 +83,20 @@ namespace TravelMemories.Controllers.Storage
 
             JwtSecurityToken jwtToken = _requestContextProvider.GetJWTToken();
             string userEmail = jwtToken.Claims.Where(cl => cl.Type == "email").FirstOrDefault().Value;
+            SubscriptionDetails userSubDetail = _imageMetadataDBContext.SubscriptionDetails.Where(x => x.UserEmail == userEmail).FirstOrDefault();
+
+            // if the storage of user is full, then don't allow user to upload more images
+            if (userSubDetail.StorageUsedInGB >= userSubDetail.StorageCapacityInGB)
+            {
+                return BadRequest("You have exhausted your storage limit. Please upgrade your plan to upload more images.");
+            }
+
+            float storageUsedInBytes = 0;
 
             foreach (IFormFile image in images)
             {
                 MemoryStream compressedStream = _imageCompressService.CompressImage(image, jpegOptions);
+                storageUsedInBytes += compressedStream.Length;
 
                 _logger.LogInformation($"Uploading {image.FileName} to Blob Storage");
                 await _blobStorageService.UploadBlobAsync(Path.Combine(userEmail, year.ToString(), tripTitle, image.FileName), compressedStream);
@@ -93,7 +114,11 @@ namespace TravelMemories.Controllers.Storage
                 });
             }
 
-            _imageMetadataDBContext.SaveChanges();
+            userSubDetail.StorageUsedInGB += storageUsedInBytes / (1024f * 1024f * 1024f);
+
+            _logger.LogInformation($"{userEmail} uploaded a total of {storageUsedInBytes / (1024f * 1024f * 1024f)} MB");
+
+            await _imageMetadataDBContext.SaveChangesAsync();
             return Ok("Image uploaded successfully");
         }
 

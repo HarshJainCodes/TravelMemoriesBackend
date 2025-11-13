@@ -53,6 +53,11 @@ namespace TravelMemories.Controllers.Authentication
                     ProfilePictureURL = pictureURL,
                 });
 
+                _imageMetadataDbContext.SubscriptionDetails.Add(new SubscriptionDetails
+                {
+                    UserEmail = userEmail,   
+                });
+
                 await _imageMetadataDbContext.SaveChangesAsync();
             }
 

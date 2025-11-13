@@ -52,8 +52,6 @@ namespace TravelMemories.Utilities.Storage
 
             string userEmail = jwtToken.Claims.Where(cl => cl.Type == "email").FirstOrDefault().Value;
 
-            var allBlobs = _containerClient.GetBlobs();
-
             var groupedRes = _imageMetadataDBContext.ImageMetadata.Where(x => x.UploadedByEmail == userEmail).GroupBy(x => x.TripName).ToList();
 
             List<ImageData> allTripDetails = new List<ImageData>();

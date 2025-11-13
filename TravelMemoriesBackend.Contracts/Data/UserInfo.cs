@@ -22,5 +22,8 @@ namespace TravelMemoriesBackend.Contracts.Data
 
         // this is usefull for foreign key, metadata table will reference this
         public ICollection<ImageMetadata> Images { get; set; } = new List<ImageMetadata>();
+
+        // every user will have only one subscription details
+        public SubscriptionDetails SubscriptionDetails { get; set; }
     }
 }
