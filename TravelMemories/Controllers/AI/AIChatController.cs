@@ -73,7 +73,7 @@ namespace TravelMemories.Controllers.AI
                 var hexString = Convert.ToHexString(hashBytes);
 
 
-                return $"TM_{hexString.Substring(0, 40)}";
+                return $"TM_{hexString.Substring(0, 25)}";
             }
         }
     }
