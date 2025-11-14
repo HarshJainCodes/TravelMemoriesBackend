@@ -44,7 +44,7 @@ namespace TravelMemories.Controllers.AI
             mcpHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken.RawData);
 
             KernelPlugin kernelPlugin = await kernel.Plugins.AddMcpFunctionsFromSseServerAsync(
-                mcpServerName,
+                new Guid().ToString(),
                 new Uri(_configuration["MCPServerUrl"]),
                 httpClient: mcpHttpClient
             );
