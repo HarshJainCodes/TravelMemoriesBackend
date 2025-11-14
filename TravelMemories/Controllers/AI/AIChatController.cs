@@ -34,7 +34,7 @@ namespace TravelMemories.Controllers.AI
         {
             JwtSecurityToken jwtToken = _requestContextProvider.GetJWTToken();
             string userEmail = jwtToken.Claims.Where(c => c.Type == "email").First().Value;
-            string mcpServerName = GenerateUniqueString(new Guid().ToString());
+            string mcpServerName = GenerateUniqueString(Guid.NewGuid().ToString());
 
             IKernelBuilder kernelBuilder = Kernel.CreateBuilder().AddAzureOpenAIChatCompletion("gpt-4o", "https://travel-memories-bot.openai.azure.com/", _configuration["AzureOpenAIKey"]);
 
@@ -70,13 +70,10 @@ namespace TravelMemories.Controllers.AI
             using (var sha256 = SHA256.Create())
             {
                 var hashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(email));
-                var base64 = Convert.ToBase64String(hashBytes)
-                    .Replace("+", "")
-                    .Replace("/", "")
-                    .Replace("=", "");
+                var hexString = Convert.ToHexString(hashBytes);
 
-                // Take first 16 characters for uniqueness, prefix with "TM_"
-                return $"TM_{base64.Substring(0, 16)}"; // Total: 19
+
+                return $"TM_{hexString.Substring(0, 40)}";
             }
         }
     }
