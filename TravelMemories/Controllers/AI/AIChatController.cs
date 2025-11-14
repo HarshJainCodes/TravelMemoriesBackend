@@ -34,7 +34,7 @@ namespace TravelMemories.Controllers.AI
         {
             JwtSecurityToken jwtToken = _requestContextProvider.GetJWTToken();
             string userEmail = jwtToken.Claims.Where(c => c.Type == "email").First().Value;
-            string mcpServerName = GenerateUniqueString(userEmail);
+            string mcpServerName = GenerateUniqueString(new Guid().ToString());
 
             IKernelBuilder kernelBuilder = Kernel.CreateBuilder().AddAzureOpenAIChatCompletion("gpt-4o", "https://travel-memories-bot.openai.azure.com/", _configuration["AzureOpenAIKey"]);
 
@@ -44,7 +44,7 @@ namespace TravelMemories.Controllers.AI
             mcpHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken.RawData);
 
             KernelPlugin kernelPlugin = await kernel.Plugins.AddMcpFunctionsFromSseServerAsync(
-                new Guid().ToString(),
+                mcpServerName,
                 new Uri(_configuration["MCPServerUrl"]),
                 httpClient: mcpHttpClient
             );
