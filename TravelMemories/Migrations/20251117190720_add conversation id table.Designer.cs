@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TravelMemories.Database;
 
@@ -11,9 +12,11 @@ using TravelMemories.Database;
 namespace TravelMemories.Migrations
 {
     [DbContext(typeof(ImageMetadataDBContext))]
-    partial class ImageMetadataDBContextModelSnapshot : ModelSnapshot
+    [Migration("20251117190720_add conversation id table")]
+    partial class addconversationidtable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -44,32 +47,6 @@ namespace TravelMemories.Migrations
                     b.HasIndex("UserEmail");
 
                     b.ToTable("ChatbotConversations", (string)null);
-                });
-
-            modelBuilder.Entity("TravelMemoriesBackend.Contracts.Data.ChatMessage", b =>
-                {
-                    b.Property<Guid>("MessageId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ConversationId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("MessageRole")
-                        .HasColumnType("int");
-
-                    b.HasKey("MessageId");
-
-                    b.HasIndex("ConversationId");
-
-                    b.ToTable("ChatMessages", (string)null);
                 });
 
             modelBuilder.Entity("TravelMemoriesBackend.Contracts.Data.ImageMetadata", b =>
@@ -215,17 +192,6 @@ namespace TravelMemories.Migrations
                     b.Navigation("UserInfo");
                 });
 
-            modelBuilder.Entity("TravelMemoriesBackend.Contracts.Data.ChatMessage", b =>
-                {
-                    b.HasOne("TravelMemoriesBackend.Contracts.Data.ChatConversation", "ChatConversation")
-                        .WithMany("ConversationMessages")
-                        .HasForeignKey("ConversationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ChatConversation");
-                });
-
             modelBuilder.Entity("TravelMemoriesBackend.Contracts.Data.ImageMetadata", b =>
                 {
                     b.HasOne("TravelMemoriesBackend.Contracts.Data.UserInfo", "UploadedBy")
@@ -248,11 +214,6 @@ namespace TravelMemories.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("TravelMemoriesBackend.Contracts.Data.ChatConversation", b =>
-                {
-                    b.Navigation("ConversationMessages");
                 });
 
             modelBuilder.Entity("TravelMemoriesBackend.Contracts.Data.UserInfo", b =>

@@ -19,12 +19,18 @@ namespace TravelMemories.Database
 
         public DbSet<SubscriptionDetails> SubscriptionDetails { get; set; }
 
+        public  DbSet<ChatConversation> ChatbotConversations { get; set; }
+
+        public DbSet<ChatMessage> ChatMessages { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new ImageMetadataConfig());
             modelBuilder.ApplyConfiguration(new UserInfoConfig());
             modelBuilder.ApplyConfiguration(new VerificationCodesConfig());
             modelBuilder.ApplyConfiguration(new SubscriptionConfig());
+            modelBuilder.ApplyConfiguration(new ChatConversationConfig());
+            modelBuilder.ApplyConfiguration(new ChatMessageConfig());
         }
     }
 }
