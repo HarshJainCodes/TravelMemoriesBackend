@@ -82,6 +82,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.MapGet("/health-check", () => Results.Ok("Healthy"));
+
 app.UseHttpsRedirection();
 
 app.UseCors("TMFrontend");
