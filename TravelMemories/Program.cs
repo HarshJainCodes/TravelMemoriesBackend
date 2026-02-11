@@ -42,7 +42,16 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("TMFrontend", policy =>
     {
-        policy.WithOrigins("https://localhost:5173", "http://192.168.1.4:5173", "https://memories.harshjain17.com", "https://lemon-moss-0ef6b9200.4.azurestaticapps.net", "https://harshjain17.com", "https://travelmemories.azurewebsites.net").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+        policy.WithOrigins("https://localhost:5173", 
+            "http://192.168.1.4:5173", 
+            "https://memories.harshjain17.com", 
+            "https://lemon-moss-0ef6b9200.4.azurestaticapps.net", 
+            "https://harshjain17.com", 
+            "https://travelmemories.azurewebsites.net",
+            // URL for mcp server
+            "https://localhost:7210",
+            "https://mcpservermemories.harshjain17.com"
+        ).AllowAnyHeader().AllowAnyMethod().AllowCredentials();
     });
 });
 
