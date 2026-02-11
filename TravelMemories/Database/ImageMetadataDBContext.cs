@@ -23,6 +23,8 @@ namespace TravelMemories.Database
 
         public DbSet<ChatMessage> ChatMessages { get; set; }
 
+        public DbSet<OAuthCodeStore> OAuthCodeStores { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new ImageMetadataConfig());
@@ -31,6 +33,7 @@ namespace TravelMemories.Database
             modelBuilder.ApplyConfiguration(new SubscriptionConfig());
             modelBuilder.ApplyConfiguration(new ChatConversationConfig());
             modelBuilder.ApplyConfiguration(new ChatMessageConfig());
+            modelBuilder.ApplyConfiguration(new OAuthCodeStoreConfig());
         }
     }
 }
