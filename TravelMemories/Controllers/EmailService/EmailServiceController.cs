@@ -100,8 +100,7 @@ namespace TravelMemories.Controllers.EmailService
             if (verificationCodes != null)
             {
                 // if OTP is older than 10 minutes, reject it
-                TimeSpan minutesPassed = (DateTime.UtcNow - verificationCodes.IssuedAt);
-                if (verificationCodes.OTP.ToString() == verifyOTPParams.OTP && (DateTime.UtcNow - verificationCodes.IssuedAt).Minutes < 10)
+                if (verifyOtpCorrect(verifyOTPParams))
                 {
                     _loginController.GenerateJWTToken(new JWTInputs
                     {
@@ -119,12 +118,44 @@ namespace TravelMemories.Controllers.EmailService
             }
         }
 
+        [HttpPost]
+        [Route("VerifyOtpVsCode")]
+        public async Task<OtpVerifyVsCode> VerifyOtpVsCode(VerifyOTPParams verifyOTPParams)
+        {
+            if (verifyOtpCorrect(verifyOTPParams))
+            {
+                return new OtpVerifyVsCode()
+                {
+                    RedirectUri = "http://127.0.0.1:33418"
+                };
+            }
+            
+            return new OtpVerifyVsCode();
+        }
+
+        [NonAction]
+        public bool verifyOtpCorrect(VerifyOTPParams verifyOTPParams)
+        {
+            VerificationCodes verificationCodes = _imageMetadataDBContext.VerificationCodes.Where((record) => record.UserEmail == verifyOTPParams.Email).FirstOrDefault();
+
+            if (verificationCodes.OTP.ToString() == verifyOTPParams.OTP && (DateTime.UtcNow - verificationCodes.IssuedAt).Minutes < 10)
+            {
+                return true;
+            }
+            return false;
+        }
+
         [NonAction]
         public int GenerateRandomOTP()
         {
             Random random = new Random();
             return random.Next(100000, 999999);
         }
+    }
+
+    public class OtpVerifyVsCode
+    {
+        public string RedirectUri { get; set; }
     }
 
     public class EmailParameters
