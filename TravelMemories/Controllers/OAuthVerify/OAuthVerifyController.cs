@@ -45,6 +45,10 @@ namespace TravelMemories.Controllers.OAuthVerify
             if (codeStore == null)
             {
                 _logger.LogError("invalid code");
+                _logger.LogError("code sent in request" + tokenForCodeExchangeRequest.code);
+                _logger.LogError("code verifier sent in request" + tokenForCodeExchangeRequest.code_verifier);
+                _logger.LogError("grant types", tokenForCodeExchangeRequest.grant_type);
+                _logger.LogError("redirect uri", tokenForCodeExchangeRequest.redirect_uri);
                 return BadRequest("invalid_code");
             }
 
