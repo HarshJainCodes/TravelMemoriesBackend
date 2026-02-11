@@ -20,27 +20,39 @@ namespace TravelMemories.Controllers.OAuthVerify
     {
         private ImageMetadataDBContext _imageMetadataDBContext;
         private IConfiguration _configuration;
+        private ILogger<OAuthVerifyController> _logger;
 
-        public OAuthVerifyController(ImageMetadataDBContext imageMetadataDBContext, IConfiguration configuration)
+        public OAuthVerifyController(ImageMetadataDBContext imageMetadataDBContext, IConfiguration configuration, ILogger<OAuthVerifyController> logger)
         {
             _imageMetadataDBContext = imageMetadataDBContext;
             _configuration = configuration;
+            _logger = logger;
         }
 
         [HttpPost("Token")]
         public async Task<IActionResult> TokenForCodeExchhange([FromForm] TokenForCodeExchangeRequest tokenForCodeExchangeRequest)
         {
+            _logger.LogInformation("Exchanging code for token");
             if (tokenForCodeExchangeRequest.grant_type != "authorization_code")
+            {
+                _logger.LogError("Invalid grant", tokenForCodeExchangeRequest.grant_type);
                 return BadRequest("invalid_grant");
+            }
 
             // get the code
             OAuthCodeStore codeStore = _imageMetadataDBContext.OAuthCodeStores.Where(x => x.Code == tokenForCodeExchangeRequest.code).FirstOrDefault();
 
             if (codeStore == null)
+            {
+                _logger.LogError("invalid code");
                 return BadRequest("invalid_code");
+            }
 
             if (!VerifyPkce(tokenForCodeExchangeRequest.code_verifier, codeStore.LoginChallenge))
+            {
+                _logger.LogError("pkce verification failed" + tokenForCodeExchangeRequest.code_verifier + codeStore.LoginChallenge);
                 return BadRequest("invalid_verifier");
+            }
 
             UserInfo user = _imageMetadataDBContext.UserInfo.Where(x => x.Email == codeStore.Email).FirstOrDefault();
             
