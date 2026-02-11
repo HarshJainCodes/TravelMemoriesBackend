@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Net.Mail;
+using System.Security.Cryptography;
 using TravelMemories.Contracts.Data;
 using TravelMemories.Controllers.Authentication;
 using TravelMemories.Database;
@@ -118,14 +119,102 @@ namespace TravelMemories.Controllers.EmailService
             }
         }
 
+        [HttpPost("SendOtpOAuthFlow")]
+        public async Task<IActionResult> SendOtpOAuthFlow(OTPLoginOAuthInput oTPLoginOAuthInput)
+        {
+            // the email should be registered in the system, otherwise reject the request
+            UserInfo userInfo = _imageMetadataDBContext.UserInfo.Where((record) => record.Email == oTPLoginOAuthInput.Email).FirstOrDefault();
+
+            if (userInfo != null)
+            {
+                // send otp to the user
+                string smtpServer = "smtp.zoho.in";
+                int portNumber = 587; // for TLS
+
+                string senderEmail = _configuration["otpSenderEmail"];
+                string senderEmailPassword = _configuration["otpSenderPassword"];
+
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
+                var smtpClient = new SmtpClient(smtpServer, portNumber)
+                {
+                    Credentials = new NetworkCredential(senderEmail, senderEmailPassword),
+                    EnableSsl = true,
+                };
+
+                MailMessage mail = new MailMessage();
+
+                int otp = GenerateRandomOTP();
+
+                VerificationCodes existingEmail = _imageMetadataDBContext.VerificationCodes.Where(v => v.UserEmail == oTPLoginOAuthInput.Email).FirstOrDefault();
+                if (existingEmail != null)
+                {
+                    // has already sent an OTP to this email, update the OTP
+                    existingEmail.OTP = otp;
+                    existingEmail.IssuedAt = DateTime.UtcNow;
+                }
+                else
+                {
+                    // sending OTP for the first time to this email
+                    _imageMetadataDBContext.VerificationCodes.Add(new VerificationCodes
+                    {
+                        UserEmail = oTPLoginOAuthInput.Email,
+                        OTP = otp,
+                        IssuedAt = DateTime.UtcNow,
+                    });
+                }
+
+                mail.From = new MailAddress(senderEmail);
+                mail.To.Add(oTPLoginOAuthInput.Email);
+                mail.Subject = "Travel Memories - Verification Code";
+                mail.Body = $"Use This OTP to sign in to your Travel Memories Account : {otp}. Do not share this OTP with anyone.";
+
+                // generate a oauth code
+                OAuthCodeStore existingCodeForThisUser = _imageMetadataDBContext.OAuthCodeStores.Where(record => record.Email == oTPLoginOAuthInput.Email).FirstOrDefault();
+                if (existingCodeForThisUser != null)
+                {
+                    existingCodeForThisUser.Code = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)).Replace("+", "-").Replace("/", "_").Replace("=", "");
+                    existingCodeForThisUser.LoginChallenge = oTPLoginOAuthInput.LoginChallenge;
+                    existingCodeForThisUser.IssuedAt = DateTime.UtcNow;
+                }
+                else
+                {
+                    _imageMetadataDBContext.OAuthCodeStores.Add(new OAuthCodeStore
+                    {
+                        Code = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)).Replace("+", "-").Replace("/", "_").Replace("=", ""),
+                        LoginChallenge = oTPLoginOAuthInput.LoginChallenge,
+                        Email = oTPLoginOAuthInput.Email,
+                        IssuedAt = DateTime.UtcNow,
+                    });
+                }
+
+                await _imageMetadataDBContext.SaveChangesAsync();
+                try
+                {
+                    smtpClient.Send(mail);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
+
+                return Ok();
+
+            }
+            return NotFound("User with this email does not exist");
+        }
+
         [HttpPost]
         [Route("VerifyOtpVsCode")]
         public async Task<OtpVerifyVsCode> VerifyOtpVsCode(VerifyOTPParams verifyOTPParams)
         {
             if (verifyOtpCorrect(verifyOTPParams))
             {
+                // grab the code
+                OAuthCodeStore codeDb = _imageMetadataDBContext.OAuthCodeStores.Where(x => x.Email == verifyOTPParams.Email).FirstOrDefault();
                 return new OtpVerifyVsCode()
                 {
+                    Code = codeDb.Code,
                     RedirectUri = "http://127.0.0.1:33418"
                 };
             }
@@ -153,8 +242,16 @@ namespace TravelMemories.Controllers.EmailService
         }
     }
 
+    public class OTPLoginOAuthInput
+    {
+        public string Email { get; set; }
+
+        public string LoginChallenge { get; set; }
+    }
+
     public class OtpVerifyVsCode
     {
+        public string Code { get; set; }
         public string RedirectUri { get; set; }
     }
 

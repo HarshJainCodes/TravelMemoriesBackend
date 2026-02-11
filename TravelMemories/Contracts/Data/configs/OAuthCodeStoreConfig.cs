@@ -10,7 +10,7 @@ namespace TravelMemories.Contracts.Data.configs
         {
             builder.ToTable("OAuthCodeStores");
 
-            builder.HasKey(p => p.Code);
+            builder.HasKey(p => p.Email);
 
             builder.Property(p => p.Code).IsRequired();
 
@@ -18,7 +18,7 @@ namespace TravelMemories.Contracts.Data.configs
 
             builder.Property(p => p.Email).IsRequired();
 
-            builder.HasIndex(p => p.Code).IsUnique();
+            builder.HasIndex(p => p.Email).IsUnique();
         }
     }
 }
