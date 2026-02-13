@@ -11,6 +11,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using TravelMemories.Database;
 using TravelMemories.Utilities.Request;
 using TravelMemoriesBackend.Contracts.Data;
@@ -38,6 +39,29 @@ namespace TravelMemories.Controllers.AI
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
             _imageMetadataDBContext = imageMetadataDBContext;
+        }
+
+        [HttpDelete]
+        [Route("Delete")]
+        public async Task<ActionResult> DeleteConversation([FromQuery] Guid conversationId)
+        {
+            var token = _requestContextProvider.GetJWTToken();
+            string userEmail = token.Claims.Where(c => c.Type == "email").First().Value;
+
+            // user should be the owner of the conversation
+            ChatConversation conv = _imageMetadataDBContext.ChatbotConversations.Where(conversation => conversation.ConversationId == conversationId).FirstOrDefault();
+            if (conv == null)
+            {
+                return BadRequest("please provide a valid conversation id");
+            }
+            if (conv.UserEmail != userEmail)
+            {
+                return Unauthorized("You do not have access to this conversation");
+            }
+
+            await _imageMetadataDBContext.ChatbotConversations.Where(conversation => conversation.ConversationId == conversationId).ExecuteDeleteAsync();
+
+            return NoContent();
         }
 
         [HttpGet]
@@ -82,6 +106,89 @@ namespace TravelMemories.Controllers.AI
                 ConversationName = conversation.ConversationName,
                 CreatedAt = conversation.CreatedAt,
             }).ToListAsync();
+        }
+
+        [HttpGet]
+        [Route("StreamResponse")]
+        public async Task GetConversationResponse([FromQuery] Guid conversationId)
+        {
+            JwtSecurityToken jwtToken = _requestContextProvider.GetJWTToken();
+            string userEmail = jwtToken.Claims.Where(c => c.Type == "email").First().Value;
+
+            IKernelBuilder kernelBuilder = Kernel.CreateBuilder().AddAzureOpenAIChatCompletion("gpt-4o", "https://travel-memories-bot.openai.azure.com/", _configuration["AzureOpenAIKey"]);
+            Kernel kernel = kernelBuilder.Build();
+
+            string mcpServerName = GenerateUniqueString(Guid.NewGuid().ToString());
+
+            HttpClient mcpHttpClient = _httpClientFactory.CreateClient();
+            mcpHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken.RawData);
+
+            KernelPlugin kernelPlugin = await kernel.Plugins.AddMcpFunctionsFromSseServerAsync(
+                mcpServerName,
+                new Uri(_configuration["MCPServerUrl"]),
+                httpClient: mcpHttpClient
+            );
+
+            var chatCompletionService = kernel.GetRequiredService<IChatCompletionService>();
+
+            OpenAIPromptExecutionSettings openAIPromptExecutionSettings = new OpenAIPromptExecutionSettings()
+            {
+                FunctionChoiceBehavior = FunctionChoiceBehavior.Auto()
+            };
+            var chatHistory = new ChatHistory();
+
+            List<ChatMessage> messagesOfThisConversation = _imageMetadataDBContext.ChatMessages.Where(message => message.ConversationId == conversationId).OrderBy(message => message.CreatedAt).ToList();
+            messagesOfThisConversation.ForEach(message =>
+            {
+                if (message.MessageRole == ModelContextProtocol.Protocol.Role.User)
+                {
+                    chatHistory.AddUserMessage(message.Message);
+                }
+                else
+                {
+                    chatHistory.AddAssistantMessage(message.Message);
+                }
+            });
+
+            string assistantGeneratedMessage = "";
+            var result2 = chatCompletionService.GetStreamingChatMessageContentsAsync(chatHistory, executionSettings: openAIPromptExecutionSettings, kernel: kernel);
+
+            HttpContext.Response.Headers["Content-Type"] = "text/event-stream";
+            HttpContext.Response.Headers["Cache-Control"] = "no-cache";
+
+            var fullMessageBuilder = new StringBuilder();
+
+            async Task WriteSseAsync(string text)
+            {
+                // SSE multi-line support: prefix each line with "data: "
+                var payload = "data: " + text.Replace("\n", "\ndata: ") + "\n\n";
+                var bytes = Encoding.UTF8.GetBytes(payload);
+                await HttpContext.Response.Body.WriteAsync(bytes, 0, bytes.Length);
+                await HttpContext.Response.Body.FlushAsync();
+            }
+
+            await foreach (var response in result2)
+            {
+                if (string.IsNullOrEmpty(response.Content)) continue;
+                assistantGeneratedMessage += response.Content;
+                await WriteSseAsync(response.Content);
+            }
+
+            var doneEvent = Encoding.UTF8.GetBytes("event: done\ndata: [DONE]\n\n");
+            await HttpContext.Response.Body.WriteAsync(doneEvent, 0, doneEvent.Length);
+            await HttpContext.Response.Body.FlushAsync();
+
+            // add this message to the db
+            _imageMetadataDBContext.ChatMessages.Add(new ChatMessage
+            {
+                MessageId = Guid.NewGuid(),
+                ConversationId = conversationId,
+                Message = assistantGeneratedMessage,
+                MessageRole = ModelContextProtocol.Protocol.Role.Assistant,
+                CreatedAt = DateTime.UtcNow,
+            });
+
+            await _imageMetadataDBContext.SaveChangesAsync();
         }
 
         [HttpPost]
@@ -136,8 +243,6 @@ namespace TravelMemories.Controllers.AI
                     CreatedAt = DateTime.UtcNow,
                 });
 
-                chatHistory.AddUserMessage(userPrompt.Prompt);
-
                 // get a name for this conversation
                 var tempChatHistory = new ChatHistory();
                 tempChatHistory.AddUserMessage($"This is the prompt the user has provided: ${userPrompt.Prompt}. Suggest a conversation name based on this prompt. Only give the name as output nothing else. Do not include quotes");
@@ -160,37 +265,13 @@ namespace TravelMemories.Controllers.AI
                 });
 
                 await _imageMetadataDBContext.SaveChangesAsync();
-
-                // this chat is already a part of already existing conversation
-                List<ChatMessage> messagesOfThisConversation = _imageMetadataDBContext.ChatMessages.Where(message => message.ConversationId == responseConversationId).OrderBy(message => message.CreatedAt).ToList();
-                messagesOfThisConversation.ForEach(message =>
-                {
-                    if (message.MessageRole == ModelContextProtocol.Protocol.Role.User)
-                    {
-                        chatHistory.AddUserMessage(message.Message);
-                    } else
-                    {
-                        chatHistory.AddAssistantMessage(message.Message);
-                    }
-                });
             }
-
-            var result = await chatCompletionService.GetChatMessageContentAsync(chatHistory, executionSettings: openAIPromptExecutionSettings, kernel: kernel);
-
-            _imageMetadataDBContext.ChatMessages.Add(new ChatMessage
-            {
-                MessageId = Guid.NewGuid(),
-                ConversationId = responseConversationId,
-                Message = result.Content,
-                MessageRole = ModelContextProtocol.Protocol.Role.Assistant,
-                CreatedAt = DateTime.UtcNow,
-            });
 
             await _imageMetadataDBContext.SaveChangesAsync();
 
             return new ChatbotResponse
             {
-                Content = result.Content,
+                //Content = result.Content,
                 ConversationId = responseConversationId
             };
 
