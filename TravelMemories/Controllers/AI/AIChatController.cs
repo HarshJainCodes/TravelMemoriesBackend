@@ -294,6 +294,27 @@ namespace TravelMemories.Controllers.AI
 
         }
 
+        [HttpGet]
+        [Route("RenameConversation")]
+        public async Task<IActionResult> RenameConversation([FromQuery] Guid conversationId, [FromQuery] string newName)
+        {
+            var token = _requestContextProvider.GetJWTToken();
+            string userEmail = token.Claims.Where(c => c.Type == "email").First().Value;
+            // user should be the owner of the conversation
+            ChatConversation conv = _imageMetadataDBContext.ChatbotConversations.Where(conversation => conversation.ConversationId == conversationId).FirstOrDefault();
+            if (conv == null)
+            {
+                return BadRequest("please provide a valid conversation id");
+            }
+            if (conv.UserEmail != userEmail)
+            {
+                return Unauthorized("You do not have access to this conversation");
+            }
+            conv.ConversationName = newName;
+            await _imageMetadataDBContext.SaveChangesAsync();
+            return Ok();
+        }
+
         [NonAction]
         public static string GenerateUniqueString(string email)
         {
