@@ -11,6 +11,7 @@ using TravelMemories.Controllers.Authentication;
 using Microsoft.IdentityModel.Abstractions;
 using TravelMemories.Configuration.AppInsights;
 using Microsoft.ApplicationInsights.Extensibility;
+using TravelMemories.Controllers.AI;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +20,7 @@ builder.Services.AddScoped<IBlobStorageService, BlobStorageService>();
 builder.Services.AddScoped<IImageCompressService, ImageCompressService>();
 builder.Services.AddScoped<IRequestContextProvider, RequestContextProvider>();
 builder.Services.AddScoped<LoginController, LoginController>();
+builder.Services.AddSingleton<CancelChatResponseService, CancelChatResponseService>();
 builder.Services.AddHttpClient();
 
 builder.Services.AddApplicationInsightsTelemetry(new ApplicationInsightsServiceOptions

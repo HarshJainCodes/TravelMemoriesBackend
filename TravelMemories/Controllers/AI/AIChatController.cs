@@ -28,17 +28,20 @@ namespace TravelMemories.Controllers.AI
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
         private readonly ImageMetadataDBContext _imageMetadataDBContext;
+        private readonly CancelChatResponseService _cancelChatResponseService;
 
 
         public AIChatController(IRequestContextProvider requestContextProvider, 
             IHttpClientFactory httpClientFactory, 
             IConfiguration configuration,
-            ImageMetadataDBContext imageMetadataDBContext)
+            ImageMetadataDBContext imageMetadataDBContext,
+            CancelChatResponseService cancelChatResponseService)
         {
             _requestContextProvider = requestContextProvider;
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
             _imageMetadataDBContext = imageMetadataDBContext;
+            _cancelChatResponseService = cancelChatResponseService;
         }
 
         [HttpDelete]
@@ -109,6 +112,14 @@ namespace TravelMemories.Controllers.AI
         }
 
         [HttpGet]
+        [Route("StopChat")]
+        public async Task<IActionResult> StopChatResponse([FromQuery] Guid conversationId)
+        {
+            _cancelChatResponseService.Cancel(conversationId);
+            return Ok();
+        }
+
+        [HttpGet]
         [Route("StreamResponse")]
         public async Task GetConversationResponse([FromQuery] Guid conversationId)
         {
@@ -167,9 +178,14 @@ namespace TravelMemories.Controllers.AI
                 await HttpContext.Response.Body.FlushAsync();
             }
 
+            CancellationToken token = _cancelChatResponseService._sessions[conversationId].Token;
             await foreach (var response in result2)
             {
                 if (string.IsNullOrEmpty(response.Content)) continue;
+                if (token.IsCancellationRequested)
+                {
+                    break;
+                }
                 assistantGeneratedMessage += response.Content;
                 await WriteSseAsync(response.Content);
             }
@@ -267,6 +283,7 @@ namespace TravelMemories.Controllers.AI
                 await _imageMetadataDBContext.SaveChangesAsync();
             }
 
+            _cancelChatResponseService.Register(responseConversationId);
             await _imageMetadataDBContext.SaveChangesAsync();
 
             return new ChatbotResponse
