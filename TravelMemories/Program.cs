@@ -52,7 +52,7 @@ builder.Services.AddCors(options =>
             "https://travelmemories.azurewebsites.net",
             // URL for mcp server
             "https://localhost:7210",
-            "https://mcpservermemories.harshjain17.com"
+            "https://mcpservermemories.azurewebsites.net"
         ).AllowAnyHeader().AllowAnyMethod().AllowCredentials();
     });
 });
