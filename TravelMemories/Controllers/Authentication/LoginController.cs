@@ -6,8 +6,10 @@ using Newtonsoft.Json.Linq;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using TravelMemories.Contracts.Data;
+using TravelMemories.Controllers.EmailService;
 using TravelMemories.Database;
 using TravelMemoriesBackend.Contracts.Data;
 
@@ -59,6 +61,35 @@ namespace TravelMemories.Controllers.Authentication
                 });
 
                 await _imageMetadataDbContext.SaveChangesAsync();
+            }
+
+            if (request.NeedOAuthCode)
+            {
+                OAuthCodeStore existingCodeForThisUser = _imageMetadataDbContext.OAuthCodeStores.Where(record => record.Email == userEmail).FirstOrDefault();
+                if (existingCodeForThisUser != null)
+                {
+                    existingCodeForThisUser.Code = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)).Replace("+", "-").Replace("/", "_").Replace("=", "");
+                    existingCodeForThisUser.LoginChallenge = request.LoginChallenge;
+                    existingCodeForThisUser.IssuedAt = DateTime.UtcNow;
+                }
+                else
+                {
+                    _imageMetadataDbContext.OAuthCodeStores.Add(new OAuthCodeStore
+                    {
+                        Code = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)).Replace("+", "-").Replace("/", "_").Replace("=", ""),
+                        LoginChallenge = request.LoginChallenge,
+                        Email = userEmail,
+                        IssuedAt = DateTime.UtcNow,
+                    });
+                }
+
+                await _imageMetadataDbContext.SaveChangesAsync();
+
+                return Ok(new
+                {
+                    Code = existingCodeForThisUser.Code,
+                    RedirectUri = "http://127.0.0.1:33418"
+                });
             }
 
             GenerateJWTToken(new JWTInputs
@@ -222,6 +253,8 @@ namespace TravelMemories.Controllers.Authentication
     public class HandleWithGoogleRequest
     {
         public string idToken { get; set; }
+        public bool NeedOAuthCode { get; set; } = false;
+        public string LoginChallenge { get; set; } = "";
     }
 
     public class JWTInputs
