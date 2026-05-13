@@ -1,6 +1,8 @@
 ﻿using Azure.Core;
+using Google.Apis.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Client.Platforms.Features.DesktopOs.Kerberos;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Linq;
 using System.IdentityModel.Tokens.Jwt;
@@ -33,10 +35,14 @@ namespace TravelMemories.Controllers.Authentication
         [Route("googleLogin")]
         public async Task<ActionResult> HandleLoginWithGoogle(HandleWithGoogleRequest request)
         {
-            var payload = await ValidateGoogleTokenV2(request.idToken);
-            string userName = payload.GetValue("name").ToString();
-            string userEmail = payload.GetValue("email").ToString();
-            string pictureURL = payload.GetValue("picture").ToString();
+            var payload = await ValidateGoogleCredentials(request.idToken);
+            //string userName = payload.GetValue("name").ToString();
+            //string userEmail = payload.GetValue("email").ToString();
+            //string pictureURL = payload.GetValue("picture").ToString();
+
+            string userName = payload.Name;
+            string userEmail = payload.Email;
+            string pictureURL = payload.Picture;
 
             // check if is an existing user
             UserInfo maybeUser = _imageMetadataDbContext.UserInfo.Where(user => user.Email == userEmail).FirstOrDefault();
@@ -225,6 +231,18 @@ namespace TravelMemories.Controllers.Authentication
             });
 
             return Ok();
+        }
+
+        private async Task<GoogleJsonWebSignature.Payload> ValidateGoogleCredentials(string JWTToken)
+        {
+            var settings = new GoogleJsonWebSignature.ValidationSettings
+            {
+                Audience = new[] { _configuration["GoogleClientId"] }
+            };
+
+            var payload = await GoogleJsonWebSignature.ValidateAsync(JWTToken, settings);
+            return payload;
+
         }
 
         [NonAction]
