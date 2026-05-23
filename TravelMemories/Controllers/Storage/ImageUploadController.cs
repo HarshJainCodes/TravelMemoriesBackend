@@ -95,23 +95,35 @@ namespace TravelMemories.Controllers.Storage
 
             foreach (IFormFile image in images)
             {
-                MemoryStream compressedStream = _imageCompressService.CompressImage(image, jpegOptions);
-                storageUsedInBytes += compressedStream.Length;
-
-                _logger.LogInformation($"Uploading {image.FileName} to Blob Storage");
-                await _blobStorageService.UploadBlobAsync(Path.Combine(userEmail, year.ToString(), tripTitle, image.FileName), compressedStream);
-                _logger.LogInformation($"Done Uploading {image.FileName} to Blob Storage");
-
-                // metadata for the same file
-                _imageMetadataDBContext.ImageMetadata.Add(new TravelMemoriesBackend.Contracts.Data.ImageMetadata
+                MemoryStream compressedStream;
+                try
                 {
-                    Year = year,
-                    ImageName = image.FileName,
-                    TripName = tripTitle,
-                    X = lat,
-                    Y = lon,
-                    UploadedByEmail = userEmail,
-                });
+                    compressedStream = _imageCompressService.CompressImage(image, jpegOptions);
+                    storageUsedInBytes += compressedStream.Length;
+
+                    _logger.LogInformation($"Uploading {image.FileName} to Blob Storage");
+                    await _blobStorageService.UploadBlobAsync(Path.Combine(userEmail, year.ToString(), tripTitle, image.FileName), compressedStream);
+                    _logger.LogInformation($"Done Uploading {image.FileName} to Blob Storage");
+
+                    // metadata for the same file
+                    _imageMetadataDBContext.ImageMetadata.Add(new TravelMemoriesBackend.Contracts.Data.ImageMetadata
+                    {
+                        Year = year,
+                        ImageName = image.FileName,
+                        TripName = tripTitle,
+                        X = lat,
+                        Y = lon,
+                        UploadedByEmail = userEmail,
+                    });
+                } catch (UnknownImageFormatException unknownImageException)
+                {
+                    _logger.LogError($"Error compressing image, got unknown image exception {unknownImageException.Message}");
+                }catch(Exception e)
+                {
+                    _logger.LogError($"Unknown exception occured, {e.Message}");
+                }
+
+                
             }
 
             userSubDetail.StorageUsedInGB += storageUsedInBytes / (1024f * 1024f * 1024f);
