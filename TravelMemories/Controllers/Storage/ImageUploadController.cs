@@ -118,6 +118,7 @@ namespace TravelMemories.Controllers.Storage
                 } catch (UnknownImageFormatException unknownImageException)
                 {
                     _logger.LogError($"Error compressing image, got unknown image exception {unknownImageException.Message}");
+                    _logger.LogError($"Image upload failed for Image: {image.FileName}");
                 }catch(Exception e)
                 {
                     _logger.LogError($"Unknown exception occured, {e.Message}");
