@@ -3,10 +3,28 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace TravelMemoriesBackend.Contracts.Data
 {
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public enum MessageRole
+    {
+        [JsonPropertyName("user")] User,
+        [JsonPropertyName("assistant")] Assistant,
+        [JsonPropertyName("system")] System,
+        [JsonPropertyName("tool")] Tool
+    }
+
+    public enum MessageType
+    {
+        [JsonPropertyName("root")] Root,
+        [JsonPropertyName ("text")] Text,
+        [JsonPropertyName("think")] Think,
+        [JsonPropertyName("system")] System,
+    }
+
     public class ChatMessage
     {
         /// <summary>
@@ -20,19 +38,27 @@ namespace TravelMemoriesBackend.Contracts.Data
         public Guid ConversationId { get; set; }
 
         /// <summary>
-        /// The content of the message
+        /// Gets or sets the role associated with the message.
         /// </summary>
-        public string Message { get; set; }
+        public MessageRole Role { get; set; }
+
+        public MessageType Type { get; set; }
+
+        public string Content { get; set; }
+
+        public DateTime Timestamp { get; set; }
+
+        public string? ReasoningContent { get; set; }
 
         /// <summary>
-        /// Whether this message was provided by user or is a response from LLM
+        /// Serialized Json Array
         /// </summary>
-        public Role MessageRole {  get; set; }
+        public string? ToolCalls { get; set; }
 
-        /// <summary>
-        /// The time at which this message was created
-        /// </summary>
-        public DateTime CreatedAt {  get; set; }
+        public string? ToolCallId { get; set; }
+
+        public string? Model { get; set; }
+
 
         /// <summary>
         /// This message is a part of which conversation

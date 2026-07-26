@@ -87,10 +87,16 @@ namespace TravelMemories.Controllers.AI
 
             var messages = await _imageMetadataDBContext.ChatMessages.Where(message => message.ConversationId == conversationId).Select(message => new MessageFromConversationDTO
             {
-                Message = message.Message,
+                Content = message.Content,
                 MessageId = message.MessageId,
-                CreatedAt = message.CreatedAt,
-                Role = message.MessageRole,
+                CreatedAt = message.Timestamp,
+                Role = message.Role,
+                ConversationId = conversationId,
+                ReasoningContent = message.ReasoningContent,
+                ToolCalls = message.ToolCalls,
+                ToolCallId = message.ToolCallId,
+                Type = message.Type
+                
             }).ToListAsync();
 
             return Ok(messages);
@@ -148,16 +154,16 @@ namespace TravelMemories.Controllers.AI
             };
             var chatHistory = new ChatHistory();
 
-            List<ChatMessage> messagesOfThisConversation = _imageMetadataDBContext.ChatMessages.Where(message => message.ConversationId == conversationId).OrderBy(message => message.CreatedAt).ToList();
+            List<ChatMessage> messagesOfThisConversation = _imageMetadataDBContext.ChatMessages.Where(message => message.ConversationId == conversationId).OrderBy(message => message.Timestamp).ToList();
             messagesOfThisConversation.ForEach(message =>
             {
-                if (message.MessageRole == ModelContextProtocol.Protocol.Role.User)
+                if (message.Role == MessageRole.User)
                 {
-                    chatHistory.AddUserMessage(message.Message);
+                    chatHistory.AddUserMessage(message.Content);
                 }
                 else
                 {
-                    chatHistory.AddAssistantMessage(message.Message);
+                    chatHistory.AddAssistantMessage(message.Content);
                 }
             });
 
@@ -199,9 +205,9 @@ namespace TravelMemories.Controllers.AI
             {
                 MessageId = Guid.NewGuid(),
                 ConversationId = conversationId,
-                Message = assistantGeneratedMessage,
-                MessageRole = ModelContextProtocol.Protocol.Role.Assistant,
-                CreatedAt = DateTime.UtcNow,
+                Content = assistantGeneratedMessage,
+                Role = MessageRole.Assistant,
+                Timestamp = DateTime.UtcNow,
             });
 
             await _imageMetadataDBContext.SaveChangesAsync();
@@ -212,27 +218,27 @@ namespace TravelMemories.Controllers.AI
         {
             JwtSecurityToken jwtToken = _requestContextProvider.GetJWTToken();
             string userEmail = jwtToken.Claims.Where(c => c.Type == "email").First().Value;
-            string mcpServerName = GenerateUniqueString(Guid.NewGuid().ToString());
+            //string mcpServerName = GenerateUniqueString(Guid.NewGuid().ToString());
 
-            IKernelBuilder kernelBuilder = Kernel.CreateBuilder().AddAzureOpenAIChatCompletion("gpt-4o", "https://travel-memories-bot.openai.azure.com/", _configuration["AzureOpenAIKey"]);
+            //IKernelBuilder kernelBuilder = Kernel.CreateBuilder().AddAzureOpenAIChatCompletion("gpt-4o", "https://travel-memories-bot.openai.azure.com/", _configuration["AzureOpenAIKey"]);
 
-            Kernel kernel = kernelBuilder.Build();
+            //Kernel kernel = kernelBuilder.Build();
 
-            HttpClient mcpHttpClient = _httpClientFactory.CreateClient();
-            mcpHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken.RawData);
+            //HttpClient mcpHttpClient = _httpClientFactory.CreateClient();
+            //mcpHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken.RawData);
 
-            KernelPlugin kernelPlugin = await kernel.Plugins.AddMcpFunctionsFromSseServerAsync(
-                mcpServerName,
-                new Uri(_configuration["MCPServerUrl"]),
-                httpClient: mcpHttpClient
-            );
+            //KernelPlugin kernelPlugin = await kernel.Plugins.AddMcpFunctionsFromSseServerAsync(
+            //    mcpServerName,
+            //    new Uri(_configuration["MCPServerUrl"]),
+            //    httpClient: mcpHttpClient
+            //);
 
-            var chatCompletionService = kernel.GetRequiredService<IChatCompletionService>();
+            //var chatCompletionService = kernel.GetRequiredService<IChatCompletionService>();
 
-            OpenAIPromptExecutionSettings openAIPromptExecutionSettings = new OpenAIPromptExecutionSettings()
-            {
-                FunctionChoiceBehavior = FunctionChoiceBehavior.Auto()
-            };
+            //OpenAIPromptExecutionSettings openAIPromptExecutionSettings = new OpenAIPromptExecutionSettings()
+            //{
+            //    FunctionChoiceBehavior = FunctionChoiceBehavior.Auto()
+            //};
 
             var chatHistory = new ChatHistory();
 
@@ -254,16 +260,17 @@ namespace TravelMemories.Controllers.AI
                 {
                     MessageId = Guid.NewGuid(),
                     ConversationId = currentConvId,
-                    Message = userPrompt.Prompt,
-                    MessageRole = ModelContextProtocol.Protocol.Role.User,
-                    CreatedAt = DateTime.UtcNow,
+                    Content = userPrompt.Prompt,
+                    Role = MessageRole.User,
+                    Timestamp = DateTime.UtcNow,
+                    Type = MessageType.Text,
                 });
 
                 // get a name for this conversation
-                var tempChatHistory = new ChatHistory();
-                tempChatHistory.AddUserMessage($"This is the prompt the user has provided: ${userPrompt.Prompt}. Suggest a conversation name based on this prompt. Only give the name as output nothing else. Do not include quotes");
-                var newConvName = await chatCompletionService.GetChatMessageContentAsync(tempChatHistory, executionSettings: openAIPromptExecutionSettings, kernel: kernel);
-                currentConv.ConversationName = newConvName.Content;
+                //var tempChatHistory = new ChatHistory();
+                //tempChatHistory.AddUserMessage($"This is the prompt the user has provided: ${userPrompt.Prompt}. Suggest a conversation name based on this prompt. Only give the name as output nothing else. Do not include quotes");
+                //var newConvName = await chatCompletionService.GetChatMessageContentAsync(tempChatHistory, executionSettings: openAIPromptExecutionSettings, kernel: kernel);
+                //currentConv.ConversationName = newConvName.Content;
                 _imageMetadataDBContext.ChatbotConversations.Add(currentConv);
 
             }
@@ -275,9 +282,10 @@ namespace TravelMemories.Controllers.AI
                 {
                     MessageId = Guid.NewGuid(),
                     ConversationId = responseConversationId,
-                    Message = userPrompt.Prompt,
-                    MessageRole = ModelContextProtocol.Protocol.Role.User,
-                    CreatedAt = DateTime.UtcNow,
+                    Content = userPrompt.Prompt,
+                    Role = MessageRole.User,
+                    Timestamp = DateTime.UtcNow,
+                    Type = MessageType.Text,
                 });
 
                 await _imageMetadataDBContext.SaveChangesAsync();
@@ -355,10 +363,20 @@ namespace TravelMemories.Controllers.AI
     {
         public Guid MessageId { get; set; }
 
-        public string Message { get; set; }
+        public string Content { get; set; }
 
         public DateTime CreatedAt { get; set; }
 
-        public Role Role { get; set; }
+        public MessageRole Role { get; set; }
+
+        public Guid ConversationId { get; set; }
+
+        public string? ReasoningContent { get; set; }
+
+        public string? ToolCalls { get; set; }
+
+        public string? ToolCallId { get; set; }
+
+        public MessageType Type { get; set; }
     }
 }

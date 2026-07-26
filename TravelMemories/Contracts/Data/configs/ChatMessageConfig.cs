@@ -15,11 +15,11 @@ namespace TravelMemories.Contracts.Data.configs
 
             builder.Property(x => x.ConversationId).IsRequired();
 
-            builder.Property(x => x.Message).IsRequired();
+            builder.Property(x => x.Content).IsRequired();
 
-            builder.Property(x => x.MessageRole).IsRequired();
+            builder.Property(x => x.Role).IsRequired();
 
-            builder.Property(x => x.MessageRole).IsRequired();
+            builder.Property(x => x.Timestamp).IsRequired();
 
             builder.HasOne(x => x.ChatConversation).WithMany(x => x.ConversationMessages).HasForeignKey(x => x.ConversationId).HasPrincipalKey(x => x.ConversationId);
         }
